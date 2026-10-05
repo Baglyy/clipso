@@ -1,0 +1,773 @@
+/* Clipso — fond #F6F4EF, carte #ECE9E3, encre #2B2A28, vert #468A57 */
+
+* {
+    font-family: "Nunito";
+    color: #2B2A28;
+}
+
+QMainWindow,
+QStackedWidget,
+QWidget#HomePage,
+QWidget#EditorPage {
+    background: #F6F4EF;
+}
+
+QScrollArea#recentProjectsScroll,
+QWidget#recentProjectsContainer {
+    background: transparent;
+}
+
+QToolTip {
+    background: #2B2A28;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 6px;
+    padding: 4px 8px;
+}
+
+/* barre du haut */
+
+QLabel#appNameLabel {
+    font-size: 19px;
+    font-weight: 800;
+}
+
+QToolButton#helpButton,
+QToolButton#settingsButton {
+    background: transparent;
+    border: none;
+    border-radius: 18px;
+}
+
+QToolButton#helpButton:hover,
+QToolButton#settingsButton:hover {
+    background: #ECE9E3;
+}
+
+QToolButton#avatarButton {
+    background: #2B2A28;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 16px;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+/* accueil */
+
+QLabel#greetingTitleLabel {
+    font-size: 42px;
+    font-weight: 900;
+}
+
+QLabel#greetingSubtitleLabel {
+    font-size: 16px;
+    color: #5E5A53;
+}
+
+/* cartes */
+
+QFrame#newProjectCard,
+QFrame#recentProjectsCard {
+    background: #ECE9E3;
+    border-radius: 26px;
+}
+
+/* nouveau projet */
+
+QLabel#newProjectIconLabel {
+    background: #2B2A28;
+    border-radius: 22px;
+}
+
+QLabel#newProjectTitleLabel {
+    font-size: 19px;
+    font-weight: 800;
+}
+
+QLabel#newProjectSubtitleLabel {
+    font-size: 12px;
+    color: #5E5A53;
+}
+
+/* cartes de format */
+QToolButton#formatLandscapeButton,
+QToolButton#formatVerticalButton,
+QToolButton#formatSquareButton {
+    background: #F6F4EF;
+    border: 2px solid #F6F4EF;
+    border-radius: 14px;
+}
+
+QToolButton#formatLandscapeButton:hover,
+QToolButton#formatVerticalButton:hover,
+QToolButton#formatSquareButton:hover {
+    border-color: #D9D5CC;
+}
+
+QToolButton#formatLandscapeButton:checked,
+QToolButton#formatVerticalButton:checked,
+QToolButton#formatSquareButton:checked {
+    border-color: #468A57;
+}
+
+QLabel#formatShape {
+    background: transparent;
+}
+
+QLabel#formatTitle {
+    font-size: 13px;
+    font-weight: 800;
+    background: transparent;
+}
+
+QLabel#formatSubtitle {
+    font-size: 11px;
+    color: #5E5A53;
+    background: transparent;
+}
+
+/* bouton principal */
+QPushButton#createProjectButton {
+    background: #2B2A28;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 800;
+}
+
+QPushButton#createProjectButton:hover {
+    background: #403E3B;
+}
+
+QPushButton#createProjectButton:pressed {
+    background: #1C1B1A;
+}
+
+/* boutons secondaires */
+QPushButton#openProjectButton,
+QPushButton#importMediaButton {
+    background: transparent;
+    border: 1.5px solid #2B2A28;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+QPushButton#openProjectButton:hover,
+QPushButton#importMediaButton:hover {
+    background: #ECE9E3;
+}
+
+/* projets récents */
+
+QLabel#recentProjectsTitleLabel {
+    font-size: 19px;
+    font-weight: 800;
+}
+
+QLineEdit#searchProjectEdit {
+    background: #F6F4EF;
+    border: 1.5px solid #F6F4EF;
+    border-radius: 10px;
+    padding: 0 8px;
+    font-size: 13px;
+}
+
+QLineEdit#searchProjectEdit:focus {
+    border-color: #468A57;
+}
+
+QFrame#recentProjectItem {
+    background: #F6F4EF;
+    border-radius: 14px;
+}
+
+QFrame#recentProjectItem:hover {
+    background: #FFFFFF;
+}
+
+QLabel#projectThumbnail {
+    border-radius: 9px;
+}
+
+QLabel#projectDuration {
+    background: rgba(43, 42, 40, 0.85);
+    color: #FFFFFF;
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-family: "DejaVu Sans Mono", monospace;
+    font-size: 9px;
+    font-weight: 700;
+}
+
+QLabel#projectTitle {
+    font-size: 15px;
+    font-weight: 800;
+    background: transparent;
+}
+
+QLabel#projectMeta {
+    font-size: 11px;
+    color: #5E5A53;
+    background: transparent;
+}
+
+QToolButton#projectMoreButton,
+QToolButton#projectOpenButton {
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+}
+
+QToolButton#projectMoreButton:hover,
+QToolButton#projectOpenButton:hover {
+    background: #ECE9E3;
+}
+
+/* barres de défilement */
+
+QScrollBar:vertical {
+    background: transparent;
+    width: 8px;
+    margin: 0;
+}
+
+QScrollBar::handle:vertical {
+    background: #D2CEC5;
+    border-radius: 4px;
+    min-height: 30px;
+}
+
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical,
+QScrollBar::add-page:vertical,
+QScrollBar::sub-page:vertical {
+    background: none;
+    height: 0;
+}
+
+/* ============================ éditeur ============================ */
+
+/* barre du haut */
+
+QToolButton#logoButton {
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+}
+
+QToolButton#logoButton:hover {
+    background: #ECE9E3;
+}
+
+QToolButton[role="menu"] {
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+QToolButton[role="menu"]:hover,
+QToolButton[role="menu"]:pressed {
+    background: #ECE9E3;
+}
+
+QToolButton[role="menu"]::menu-indicator {
+    image: none;
+    width: 0;
+}
+
+QFrame#projectPill {
+    background: #ECE9E3;
+    border-radius: 12px;
+}
+
+QLabel#projectNameLabel {
+    font-size: 14px;
+    font-weight: 800;
+}
+
+QLabel#projectSavedLabel {
+    font-size: 12px;
+    color: #6B665E;
+}
+
+QPushButton#exportButton,
+QPushButton[role="accent"] {
+    background: #468A57;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 12px;
+    padding: 0 18px;
+    font-size: 15px;
+    font-weight: 800;
+}
+
+QPushButton#exportButton:hover,
+QPushButton[role="accent"]:hover {
+    background: #3D7A4D;
+}
+
+QMenu {
+    background: #FFFFFF;
+    border: 1px solid #E0DDD6;
+    border-radius: 10px;
+    padding: 6px;
+}
+
+QMenu::item {
+    padding: 7px 28px 7px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+QMenu::item:selected {
+    background: #F0EDE7;
+}
+
+QMenu::separator {
+    height: 1px;
+    background: #ECE9E3;
+    margin: 4px 8px;
+}
+
+QSplitter::handle {
+    background: transparent;
+}
+
+/* panneaux */
+
+QWidget#mediaPanel,
+QWidget#previewPanel,
+QWidget#propertiesPanel,
+QWidget#timelinePanel {
+    background: #ECE9E3;
+    border-radius: 18px;
+}
+
+QLabel[role="panelTitle"] {
+    font-size: 16px;
+    font-weight: 800;
+}
+
+QLabel[role="panelMeta"] {
+    font-size: 12px;
+    color: #6B665E;
+}
+
+QLabel[role="badge"] {
+    background: #E0DDD6;
+    border-radius: 6px;
+    padding: 2px 7px;
+    font-size: 11px;
+    color: #5E5A53;
+}
+
+QLabel[role="hint"] {
+    font-size: 11px;
+    color: #6B665E;
+}
+
+QLabel[role="strong"] {
+    font-size: 15px;
+    font-weight: 800;
+}
+
+QLabel[role="small"] {
+    font-size: 12px;
+    font-weight: 700;
+}
+
+QLabel[role="section"] {
+    font-size: 12px;
+    font-weight: 700;
+    color: #3E3C38;
+}
+
+QLabel[role="field"] {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+QLabel[role="value"] {
+    font-family: "JetBrains Mono";
+    font-size: 11px;
+    color: #6B665E;
+}
+
+/* boutons génériques */
+
+QPushButton[role="primary"] {
+    background: #2B2A28;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+QPushButton[role="primary"]:hover {
+    background: #403E3B;
+}
+
+QPushButton[role="outline"] {
+    background: transparent;
+    border: 1.5px solid #2B2A28;
+    border-radius: 10px;
+    padding: 0 10px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+QPushButton[role="outline"]:hover {
+    background: #FFFFFF;
+}
+
+QPushButton[role="soft"],
+QToolButton[role="soft"] {
+    background: #E6E3DC;
+    border: none;
+    border-radius: 10px;
+    padding: 0 16px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+QToolButton[role="soft"] {
+    background: #E0DDD6;
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+QPushButton[role="soft"]:hover,
+QToolButton[role="soft"]:hover {
+    background: #D9D5CC;
+}
+
+QToolButton[role="soft"]::menu-indicator {
+    image: none;
+    width: 0;
+}
+
+QToolButton[role="icon"] {
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+}
+
+QToolButton[role="icon"]:hover {
+    background: #E0DDD6;
+}
+
+QToolButton[role="icon"]:checked {
+    background: #E0DDD6;
+}
+
+QToolButton[role="link"] {
+    background: transparent;
+    border: none;
+    font-size: 12px;
+    font-weight: 700;
+    color: #3E3C38;
+}
+
+QToolButton[role="link"]:hover {
+    color: #468A57;
+}
+
+/* contrôles segmentés */
+
+QFrame[role="segmented"] {
+    background: #E0DDD6;
+    border-radius: 12px;
+}
+
+QFrame[role="segmented"] QToolButton {
+    background: transparent;
+    border: none;
+    border-radius: 9px;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 0 6px;
+}
+
+QFrame[role="segmented"] QToolButton:hover {
+    background: #EAE7E1;
+}
+
+QFrame[role="segmented"] QToolButton:checked {
+    background: #FFFFFF;
+}
+
+QToolButton[role="tab"] {
+    font-size: 10px;
+}
+
+QToolButton[role="tab"][unavailable="true"] {
+    color: #A8A39A;
+}
+
+/* médias */
+
+QFrame#dropZone {
+    background: transparent;
+    border: 1.5px dashed #D2CEC5;
+    border-radius: 14px;
+}
+
+QFrame#dropZone QLabel {
+    border: none;
+}
+
+QScrollArea#mediaScroll,
+QWidget#mediaGridContainer {
+    background: transparent;
+}
+
+QLabel#mediaName {
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* aperçu */
+
+QLabel#timecodeLabel {
+    font-family: "JetBrains Mono";
+    font-size: 14px;
+    font-weight: 500;
+}
+
+QToolButton#playButton {
+    background: #2B2A28;
+    border: none;
+    border-radius: 23px;
+}
+
+QToolButton#playButton:hover {
+    background: #403E3B;
+}
+
+/* propriétés */
+
+QFrame[role="card"] {
+    background: #F6F4EF;
+    border-radius: 14px;
+}
+
+QStackedWidget#propertyStack,
+QScrollArea,
+QScrollArea > QWidget > QWidget {
+    background: transparent;
+}
+
+QLineEdit,
+QComboBox,
+QFrame[role="inputField"] {
+    background: #FFFFFF;
+    border: 1.5px solid #E6E3DC;
+    border-radius: 10px;
+    padding: 0 12px;
+    font-size: 14px;
+    selection-background-color: #468A57;
+}
+
+QFrame[role="inputField"] {
+    padding: 0;
+}
+
+QLineEdit:focus,
+QComboBox:focus {
+    border-color: #468A57;
+}
+
+QLineEdit#textContentEdit {
+    font-size: 17px;
+    font-weight: 800;
+}
+
+QComboBox {
+    font-weight: 600;
+}
+
+QComboBox::drop-down {
+    border: none;
+    width: 30px;
+}
+
+QComboBox::down-arrow {
+    image: url({assets}/images/caret-down.svg);
+    width: 12px;
+    height: 12px;
+    margin-right: 12px;
+}
+
+QComboBox QAbstractItemView {
+    background: #FFFFFF;
+    border: 1px solid #E0DDD6;
+    border-radius: 8px;
+    selection-background-color: #F0EDE7;
+    selection-color: #2B2A28;
+    outline: none;
+    padding: 4px;
+}
+
+QSpinBox {
+    background: transparent;
+    border: none;
+    font-family: "JetBrains Mono";
+    font-size: 13px;
+}
+
+QLabel[role="fieldPrefix"] {
+    font-size: 13px;
+    font-weight: 700;
+    color: #6B665E;
+    background: transparent;
+}
+
+QToolButton[role="preset"] {
+    background: transparent;
+    border: none;
+}
+
+QLabel#presetName {
+    font-size: 12px;
+    font-weight: 600;
+    background: transparent;
+}
+
+/* curseurs */
+
+QSlider::groove:horizontal {
+    height: 4px;
+    background: #D6D2C9;
+    border-radius: 2px;
+}
+
+QSlider::sub-page:horizontal {
+    background: #2B2A28;
+    border-radius: 2px;
+}
+
+QSlider::handle:horizontal {
+    background: #FFFFFF;
+    border: 2px solid #2B2A28;
+    width: 14px;
+    height: 14px;
+    margin: -7px 0;
+    border-radius: 9px;
+}
+
+/* timeline */
+
+QFrame[role="toolGroup"] {
+    background: #E0DDD6;
+    border-radius: 12px;
+}
+
+QToolButton[role="toolText"] {
+    background: transparent;
+    border: none;
+    border-radius: 9px;
+    padding: 0 10px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+QToolButton[role="toolText"]:hover {
+    background: #EAE7E1;
+}
+
+QToolButton#magnetButton {
+    background: #E0DDD6;
+    border-radius: 12px;
+    padding: 0 14px;
+}
+
+QToolButton#magnetButton:checked {
+    background: #2B2A28;
+    color: #FFFFFF;
+}
+
+QFrame#trackHeader {
+    background: #E0DDD6;
+    border-radius: 10px;
+}
+
+QLabel#trackName {
+    font-size: 13px;
+    font-weight: 800;
+    background: transparent;
+}
+
+QToolButton#trackButton {
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+}
+
+QToolButton#trackButton:hover {
+    background: #D6D2C9;
+}
+
+QScrollBar:horizontal {
+    background: transparent;
+    height: 8px;
+    margin: 0;
+}
+
+QScrollBar::handle:horizontal {
+    background: #D2CEC5;
+    border-radius: 4px;
+    min-width: 40px;
+}
+
+QScrollBar::add-line:horizontal,
+QScrollBar::sub-line:horizontal,
+QScrollBar::add-page:horizontal,
+QScrollBar::sub-page:horizontal {
+    background: none;
+    width: 0;
+}
+
+/* export */
+
+QFrame#exportCard {
+    background: #F6F4EF;
+    border-radius: 22px;
+}
+
+QLabel#exportTitleLabel {
+    font-size: 22px;
+    font-weight: 800;
+}
+
+QFrame[role="subtleCard"] {
+    background: #ECE9E3;
+    border-radius: 14px;
+}
+
+QLabel[role="formLabel"] {
+    font-size: 13px;
+    font-weight: 700;
+}
+
+QFrame#settingsCard QFrame[role="segmented"] QToolButton {
+    min-height: 34px;
+    font-size: 13px;
+}
+
+QFrame#settingsCard QFrame[role="segmented"] QToolButton:checked {
+    font-weight: 800;
+}
+
+QLineEdit#folderEdit {
+    font-family: "JetBrains Mono";
+    font-size: 12px;
+}
