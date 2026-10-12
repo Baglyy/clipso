@@ -5,6 +5,10 @@ from PyQt6.QtWidgets import QLabel, QSizePolicy
 from view.editor.media.media_tile import MediaThumbnail, MediaTile
 
 
+# ---------------------------------------------------------------------------
+# Fixtures
+# ---------------------------------------------------------------------------
+
 @pytest.fixture
 def video_media():
     """Dictionnaire de média vidéo complet."""
@@ -54,6 +58,9 @@ def media_tile(qtbot, video_media):
     return tile
 
 
+# ---------------------------------------------------------------------------
+# Tests : MediaThumbnail
+# ---------------------------------------------------------------------------
 
 def test_thumbnail_initial_properties(media_thumbnail, video_media):
     """Vérifie la configuration initiale de la miniature (hauteur, policy, données)."""
@@ -83,6 +90,11 @@ def test_thumbnail_paint_event_does_not_crash(qtbot, media_data):
     widget.show()
     qtbot.waitExposed(widget)
     widget.repaint()
+
+
+# ---------------------------------------------------------------------------
+# Tests : MediaTile
+# ---------------------------------------------------------------------------
 
 def test_tile_initial_properties(media_tile, video_media):
     """Vérifie l'état et les propriétés générales du tile."""
