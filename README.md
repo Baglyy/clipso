@@ -1,18 +1,18 @@
 # Clipso
-
 ## Logiciel de montage vidéo
 
-| Catégorie                     | Technologies                                                                                                                                                                                                  |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Interface graphique**       | ![PyQt6](https://img.shields.io/badge/PyQt6-41CD52?style=flat-square&logo=qt&logoColor=white)                                                                                                                 |
-| **Lecture/Export des vidéos** | ![FFmpeg](https://img.shields.io/badge/FFmpeg-20AB56?style=flat-square&logo=ffmpeg&logoColor=white)                                                                                                           |
-| **Analyse des frames**        | ![OpenCV](https://img.shields.io/badge/OpenCV-5C3EE8?style=flat-square&logo=opencv&logoColor=white)                                                                                                           |
-| **Effets visuels**            | ![MoviePy](https://img.shields.io/badge/MoviePy-111111?style=flat-square&logo=python&logoColor=white) ![PIL/Pillow](https://img.shields.io/badge/Pillow-3776AB?style=flat-square&logo=python&logoColor=white) |
-| **Effets audio**              | ![Audiomentations](https://img.shields.io/badge/Audiomentations-FF6F00?style=flat-square&logo=python&logoColor=white)                                                                                         |
+| Catégorie | Technologies |
+| --- | --- |
+| **Interface graphique** | ![PyQt6](https://img.shields.io/badge/PyQt6-41CD52?style=flat-square&logo=qt&logoColor=white) |
+| **Lecture/Export des vidéos** | ![FFmpeg](https://img.shields.io/badge/FFmpeg-20AB56?style=flat-square&logo=ffmpeg&logoColor=white) |
+| **Analyse des frames** | ![OpenCV](https://img.shields.io/badge/OpenCV-5C3EE8?style=flat-square&logo=opencv&logoColor=white) |
+| **Effets visuels** | ![MoviePy](https://img.shields.io/badge/MoviePy-111111?style=flat-square&logo=python&logoColor=white) ![PIL/Pillow](https://img.shields.io/badge/Pillow-3776AB?style=flat-square&logo=python&logoColor=white) |
+| **Effets audio** | ![Audiomentations](https://img.shields.io/badge/Audiomentations-FF6F00?style=flat-square&logo=python&logoColor=white) |
 
 ## Architecture MVC
 
 La base de code suit le patron architectural **MVC** afin de séparer clairement la gestion de l'état du montage (modèle), la logique de contrôle des actions utilisateur (contrôleur), et l'affichage (vue). Cette séparation facilite la testabilité de chaque couche indépendamment de l'interface graphique, permet le développement en parallèle des différents modules, et évite le couplage entre la logique métier et le rendu graphique.
+
 
 ## Guide d'Installation
 
@@ -52,7 +52,6 @@ pip install -r requirements.txt
 ```bash
 python main.py
 ```
-
 ## Développement
 
 ### Outils
@@ -77,14 +76,14 @@ Les tests sont dans `tests/` : `test_format.py` et `test_theme.py` testent les p
 
 ### Où trouver quoi dans `view/`
 
-| Fichier / dossier              | À quoi ça sert                                                                                |
-| ------------------------------ | --------------------------------------------------------------------------------------------- |
-| `theme.py`                     | Les couleurs, le chemin vers `assets/` et la fonction `icon()`                                |
-| `painting.py`                  | Les dessins réutilisés (formes d'onde, fonds rayés)                                           |
-| `format.py`                    | Pour afficher les temps et les valeurs (`00:58`, `5,6 s`, `30 %`...)                          |
-| `ui_helpers.py`                | Des petites fonctions pour éviter de répéter le même code sur les boutons et les curseurs     |
+| Fichier / dossier | À quoi ça sert |
+| --- | --- |
+| `theme.py` | Les couleurs, le chemin vers `assets/` et la fonction `icon()` |
+| `painting.py` | Les dessins réutilisés (formes d'onde, fonds rayés) |
+| `format.py` | Pour afficher les temps et les valeurs (`00:58`, `5,6 s`, `30 %`...) |
+| `ui_helpers.py` | Des petites fonctions pour éviter de répéter le même code sur les boutons et les curseurs |
 | `home/`, `editor/`, `dialogs/` | Les écrans : pour chaque partie, un fichier `.ui` (fait avec Qt Designer) et un fichier `.py` |
-| `demo_data.py`                 | Des fausses données pour tester l'interface en attendant le back                              |
+| `demo_data.py` | Des fausses données pour tester l'interface en attendant le back |
 
 Tout ce qui est écrit en dur et qu'on devra remplacer par le back est marqué avec `# TODO:`. Pour tout retrouver : `grep -rn TODO view`.
 
