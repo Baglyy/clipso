@@ -4,7 +4,6 @@ from PyQt6.QtCore import Qt
 from view.editor.editor_page import EditorPage
 from view.editor.preview.preview_panel import FPS
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
