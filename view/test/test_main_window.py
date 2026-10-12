@@ -4,7 +4,6 @@ from PyQt6.QtCore import QSize, Qt
 from view.dialogs.export_dialog import ExportDialog
 from view.main_window import MainWindow
 
-
 # ---------------------------------------------------------------------------
 # Fixture
 # ---------------------------------------------------------------------------
