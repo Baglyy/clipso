@@ -4,10 +4,10 @@ from PyQt6.QtCore import QPoint, Qt
 # Adapter l'import selon l'arborescence de votre projet
 from view.editor.timeline.timeline_view import RULER_HEIGHT, TimelineView
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture
 def sample_tracks():
@@ -52,6 +52,7 @@ def timeline(qtbot, sample_tracks):
 # Tests : État initial et Configuration
 # ---------------------------------------------------------------------------
 
+
 def test_initial_state(qtbot):
     """Vérifie les valeurs par défaut d'une timeline vide."""
     view = TimelineView()
@@ -85,6 +86,7 @@ def test_set_tracks_emits_content_width_changed(qtbot, sample_tracks):
 # Tests : Tête de lecture et Bornes de Position
 # ---------------------------------------------------------------------------
 
+
 def test_set_position_clamps_within_bounds(timeline):
     """Vérifie que la position reste obligatoirement comprise entre 0 et duration."""
     timeline.set_position(5.0)
@@ -102,6 +104,7 @@ def test_set_position_clamps_within_bounds(timeline):
 # ---------------------------------------------------------------------------
 # Tests : Conversions Coordonnées <-> Temps
 # ---------------------------------------------------------------------------
+
 
 def test_time_and_pixel_conversions(timeline):
     """Vérifie la réciprocité des méthodes x_for et seconds_for."""
@@ -129,6 +132,7 @@ def test_zoom_and_offset_impact(timeline, qtbot):
 # ---------------------------------------------------------------------------
 # Tests : Recherche et Sélection de Clips
 # ---------------------------------------------------------------------------
+
 
 def test_clips_at_timestamp(timeline):
     """Vérifie la recherche des clips actifs à un instant T."""
@@ -162,6 +166,7 @@ def test_select_clip_emits_signal(timeline, sample_tracks, qtbot):
 # ---------------------------------------------------------------------------
 # Tests : Interactions Souris
 # ---------------------------------------------------------------------------
+
 
 def test_click_on_ruler_moves_playhead(timeline, qtbot):
     """Vérifie qu'un clic dans la règle déplace la tête de lecture et émet position_changed."""
@@ -210,6 +215,7 @@ def test_drag_playhead(timeline, qtbot):
 # ---------------------------------------------------------------------------
 # Tests : Rendu Graphique (paintEvent)
 # ---------------------------------------------------------------------------
+
 
 def test_paint_event_does_not_crash(timeline, sample_tracks, qtbot):
     """Vérifie que la timeline et tous ses types de clips (vidéo, audio, texte) se dessinent sans plantage."""

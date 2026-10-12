@@ -1,14 +1,14 @@
 import pytest
 from PyQt6.QtCore import QSize, Qt
-from PyQt6.QtWidgets import QLabel, QToolButton
+from PyQt6.QtWidgets import QLabel
 
 # Adapter l'import selon l'arborescence de votre projet
 from view.editor.timeline.track_header import TrackHeader
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture
 def video_track_data():
@@ -48,6 +48,7 @@ def audio_header(qtbot, audio_track_data):
 # Tests : Initialisation et Propriétés
 # ---------------------------------------------------------------------------
 
+
 def test_initial_properties(video_header, video_track_data):
     """Vérifie l'initialisation générale du widget (hauteur, objectName, layout, nom)."""
     assert video_header.objectName() == "trackHeader"
@@ -76,6 +77,7 @@ def test_custom_icon_used_when_provided(qtbot, custom_icon_track_data):
 # ---------------------------------------------------------------------------
 # Tests : Boutons (Visibilité / Mute et Verrou)
 # ---------------------------------------------------------------------------
+
 
 def test_video_track_buttons_config(video_header):
     """Vérifie la configuration des boutons pour une piste vidéo."""
@@ -110,6 +112,7 @@ def test_audio_track_buttons_config(audio_header):
 # ---------------------------------------------------------------------------
 # Tests : Interactions et Changement d'icônes au clic
 # ---------------------------------------------------------------------------
+
 
 def test_visibility_button_toggle(video_header, qtbot):
     """Vérifie que le clic sur le bouton de visibilité bascule son état sans erreur."""
@@ -154,6 +157,7 @@ def test_lock_button_toggle(video_header, qtbot):
 # ---------------------------------------------------------------------------
 # Tests : Affichage & Rendu
 # ---------------------------------------------------------------------------
+
 
 def test_paint_event_does_not_crash(video_header, qtbot):
     """Vérifie que le header s'affiche et se repeint sans exception."""

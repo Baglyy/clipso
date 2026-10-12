@@ -5,10 +5,10 @@ from PyQt6.QtCore import Qt
 from view.editor.media.media_panel import COLUMNS, MediaPanel
 from view.editor.media.media_tile import MediaTile
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture
 def sample_media():
@@ -33,6 +33,7 @@ def panel(qtbot):
 # Tests : Initialisation
 # ---------------------------------------------------------------------------
 
+
 def test_initial_state(panel):
     """Vérifie l'état initial du panneau (liste vide, dictionnaire de filtres)."""
     assert panel.tiles == []
@@ -53,6 +54,7 @@ def test_initial_state(panel):
 # ---------------------------------------------------------------------------
 # Tests : Alimentation des médias (set_media)
 # ---------------------------------------------------------------------------
+
 
 def test_set_media_populates_tiles_and_label(panel, sample_media):
     """Vérifie l'ajout de médias : création des tiles, label de compteur et disposition."""
@@ -90,6 +92,7 @@ def test_set_media_replaces_existing_tiles(panel, sample_media):
 # ---------------------------------------------------------------------------
 # Tests : Filtrage
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.parametrize(
     ("filter_button_attr", "expected_kind", "expected_count"),
@@ -141,6 +144,7 @@ def test_stretch_row_updated_on_filter(panel, sample_media):
 # ---------------------------------------------------------------------------
 # Tests : Affichage & Rendu
 # ---------------------------------------------------------------------------
+
 
 def test_paint_event_does_not_crash(panel, sample_media, qtbot):
     """Vérifie que le panneau et ses composants graphiques se rendent sans exception."""

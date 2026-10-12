@@ -6,10 +6,10 @@ from view.editor.timeline.timeline_panel import ZOOM_STEP, TimelinePanel
 from view.editor.timeline.timeline_view import RULER_HEIGHT, TRACK_HEIGHTS
 from view.editor.timeline.track_header import TrackHeader
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture
 def sample_tracks():
@@ -18,23 +18,17 @@ def sample_tracks():
         {
             "name": "Piste Vidéo 1",
             "kind": "video",
-            "clips": [
-                {"name": "clip_intro.mp4", "kind": "video", "start": 0.0, "duration": 4.0, "color": "#3498DB"}
-            ],
+            "clips": [{"name": "clip_intro.mp4", "kind": "video", "start": 0.0, "duration": 4.0, "color": "#3498DB"}],
         },
         {
             "name": "Piste Audio 1",
             "kind": "audio",
-            "clips": [
-                {"name": "musique.mp3", "kind": "audio", "start": 0.0, "duration": 8.0}
-            ],
+            "clips": [{"name": "musique.mp3", "kind": "audio", "start": 0.0, "duration": 8.0}],
         },
         {
             "name": "Titres",
             "kind": "overlay",
-            "clips": [
-                {"name": "Titre", "kind": "text", "start": 1.0, "duration": 2.0, "text": "Bonjour"}
-            ],
+            "clips": [{"name": "Titre", "kind": "text", "start": 1.0, "duration": 2.0, "text": "Bonjour"}],
         },
     ]
 
@@ -51,6 +45,7 @@ def panel(qtbot):
 # ---------------------------------------------------------------------------
 # Tests : Initialisation
 # ---------------------------------------------------------------------------
+
 
 def test_initial_state(panel):
     """Vérifie l'état initial des composants du panneau."""
@@ -78,6 +73,7 @@ def test_magnet_button_toggle(panel, qtbot):
 # Tests : Zoom
 # ---------------------------------------------------------------------------
 
+
 def test_zoom_slider_updates_timeline_view(panel):
     """Vérifie que modifier la valeur du slider ajuste le zoom de la timeline."""
     panel.zoomSlider.setValue(150)
@@ -89,6 +85,7 @@ def test_zoom_slider_updates_timeline_view(panel):
     # Retour à 100% (minimum du slider)
     panel.zoomSlider.setValue(100)
     assert panel.timelineView.zoom == pytest.approx(1.0)
+
 
 def test_zoom_in_button(panel, qtbot):
     """Vérifie que le bouton zoom avant incrémente le slider du ZOOM_STEP."""
@@ -115,6 +112,7 @@ def test_fit_timeline_button(panel, qtbot):
 # ---------------------------------------------------------------------------
 # Tests : Défilement & Synchronisation ScrollBar
 # ---------------------------------------------------------------------------
+
 
 def test_scrollbar_update_on_overflow(panel):
     """Vérifie l'activation et les bornes de la barre de défilement selon le dépassement."""
@@ -145,6 +143,7 @@ def test_scrollbar_scrolls_timeline_offset(panel):
 # Tests : En-têtes de pistes (set_tracks) et Sélection
 # ---------------------------------------------------------------------------
 
+
 def test_set_tracks_creates_headers(panel, sample_tracks):
     """Vérifie la création des TrackHeader et la transmission des données à la timeline."""
     panel.set_tracks(sample_tracks, duration=10.0)
@@ -153,7 +152,7 @@ def test_set_tracks_creates_headers(panel, sample_tracks):
     assert all(isinstance(header, TrackHeader) for header in panel.headers)
 
     # Vérifie que la hauteur de chaque header correspond à TRACK_HEIGHTS
-    for header, track in zip(panel.headers, sample_tracks):
+    for header, track in zip(panel.headers, sample_tracks, strict=True):
         assert header.height() == TRACK_HEIGHTS[track["kind"]]
 
     assert panel.addTrackButton.height() == RULER_HEIGHT
@@ -187,6 +186,7 @@ def test_clip_selected_updates_selection_label(panel, sample_tracks):
 # ---------------------------------------------------------------------------
 # Tests : Rendu Graphique
 # ---------------------------------------------------------------------------
+
 
 def test_paint_event_does_not_crash(panel, sample_tracks, qtbot):
     """Vérifie que le panneau complet s'affiche et se repeint sans exception."""
