@@ -4,10 +4,10 @@ from PyQt6.QtWidgets import QLabel, QSizePolicy
 
 from view.editor.media.media_tile import MediaThumbnail, MediaTile
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture
 def video_media():
@@ -62,6 +62,7 @@ def media_tile(qtbot, video_media):
 # Tests : MediaThumbnail
 # ---------------------------------------------------------------------------
 
+
 def test_thumbnail_initial_properties(media_thumbnail, video_media):
     """Vérifie la configuration initiale de la miniature (hauteur, policy, données)."""
     assert media_thumbnail.media == video_media
@@ -95,6 +96,7 @@ def test_thumbnail_paint_event_does_not_crash(qtbot, media_data):
 # ---------------------------------------------------------------------------
 # Tests : MediaTile
 # ---------------------------------------------------------------------------
+
 
 def test_tile_initial_properties(media_tile, video_media):
     """Vérifie l'état et les propriétés générales du tile."""
