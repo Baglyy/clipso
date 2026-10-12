@@ -1,0 +1,480 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>TimelinePanel</class>
+ <widget class="QWidget" name="TimelinePanel" native="true">
+  <layout class="QVBoxLayout" name="timelineLayout">
+   <property name="spacing">
+    <number>10</number>
+   </property>
+   <property name="leftMargin">
+    <number>14</number>
+   </property>
+   <property name="topMargin">
+    <number>14</number>
+   </property>
+   <property name="rightMargin">
+    <number>14</number>
+   </property>
+   <property name="bottomMargin">
+    <number>14</number>
+   </property>
+   <item>
+    <layout class="QHBoxLayout" name="timelineToolbarLayout">
+     <property name="spacing">
+      <number>8</number>
+     </property>
+     <item>
+      <widget class="QFrame" name="historyGroup">
+       <property name="role" stdset="0">
+        <string>toolGroup</string>
+       </property>
+       <layout class="QHBoxLayout" name="historyGroupLayout">
+        <property name="spacing">
+         <number>2</number>
+        </property>
+        <property name="leftMargin">
+         <number>3</number>
+        </property>
+        <property name="topMargin">
+         <number>3</number>
+        </property>
+        <property name="rightMargin">
+         <number>3</number>
+        </property>
+        <property name="bottomMargin">
+         <number>3</number>
+        </property>
+        <item>
+         <widget class="QToolButton" name="timelineUndoButton">
+          <property name="text">
+           <string />
+          </property>
+          <property name="toolTip">
+           <string>Annuler</string>
+          </property>
+          <property name="role" stdset="0">
+           <string>icon</string>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>34</width>
+            <height>34</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>34</width>
+            <height>34</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="timelineRedoButton">
+          <property name="text">
+           <string />
+          </property>
+          <property name="toolTip">
+           <string>Rétablir</string>
+          </property>
+          <property name="role" stdset="0">
+           <string>icon</string>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>34</width>
+            <height>34</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>34</width>
+            <height>34</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QFrame" name="editGroup">
+       <property name="role" stdset="0">
+        <string>toolGroup</string>
+       </property>
+       <layout class="QHBoxLayout" name="editGroupLayout">
+        <property name="spacing">
+         <number>2</number>
+        </property>
+        <property name="leftMargin">
+         <number>3</number>
+        </property>
+        <property name="topMargin">
+         <number>3</number>
+        </property>
+        <property name="rightMargin">
+         <number>3</number>
+        </property>
+        <property name="bottomMargin">
+         <number>3</number>
+        </property>
+        <item>
+         <widget class="QToolButton" name="cutButton">
+          <property name="text">
+           <string>Couper</string>
+          </property>
+          <property name="toolTip">
+           <string>Couper au curseur (C)</string>
+          </property>
+          <property name="role" stdset="0">
+           <string>toolText</string>
+          </property>
+          <property name="toolButtonStyle">
+           <enum>Qt::ToolButtonTextBesideIcon</enum>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>34</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="deleteButton">
+          <property name="text">
+           <string>Supprimer</string>
+          </property>
+          <property name="toolTip">
+           <string>Supprimer le clip (Suppr)</string>
+          </property>
+          <property name="role" stdset="0">
+           <string>toolText</string>
+          </property>
+          <property name="toolButtonStyle">
+           <enum>Qt::ToolButtonTextBesideIcon</enum>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>34</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="magnetButton">
+       <property name="text">
+        <string>Magnétisme</string>
+       </property>
+       <property name="toolTip">
+        <string>Aimanter les clips entre eux</string>
+       </property>
+       <property name="role" stdset="0">
+        <string>toolText</string>
+       </property>
+       <property name="toolButtonStyle">
+        <enum>Qt::ToolButtonTextBesideIcon</enum>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>34</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="timelineToolbarSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QLabel" name="selectionIcon">
+       <property name="text">
+        <string />
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>18</width>
+         <height>18</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>18</width>
+         <height>18</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="timelineSelectionLabel">
+       <property name="text">
+        <string>logo_club.png</string>
+       </property>
+       <property name="role" stdset="0">
+        <string>panelMeta</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="timelineToolbarGap">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>8</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QFrame" name="zoomGroup">
+       <property name="role" stdset="0">
+        <string>toolGroup</string>
+       </property>
+       <layout class="QHBoxLayout" name="zoomGroupLayout">
+        <property name="spacing">
+         <number>2</number>
+        </property>
+        <property name="leftMargin">
+         <number>3</number>
+        </property>
+        <property name="topMargin">
+         <number>3</number>
+        </property>
+        <property name="rightMargin">
+         <number>3</number>
+        </property>
+        <property name="bottomMargin">
+         <number>3</number>
+        </property>
+        <item>
+         <widget class="QToolButton" name="zoomOutButton">
+          <property name="text">
+           <string />
+          </property>
+          <property name="toolTip">
+           <string>Dézoomer</string>
+          </property>
+          <property name="role" stdset="0">
+           <string>icon</string>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>34</width>
+            <height>34</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>34</width>
+            <height>34</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSlider" name="zoomSlider">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="minimum">
+           <number>100</number>
+          </property>
+          <property name="maximum">
+           <number>800</number>
+          </property>
+          <property name="value">
+           <number>100</number>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>120</width>
+            <height>24</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>120</width>
+            <height>24</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="zoomInButton">
+          <property name="text">
+           <string />
+          </property>
+          <property name="toolTip">
+           <string>Zoomer</string>
+          </property>
+          <property name="role" stdset="0">
+           <string>icon</string>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>34</width>
+            <height>34</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>34</width>
+            <height>34</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="fitTimelineButton">
+          <property name="text">
+           <string>Ajuster</string>
+          </property>
+          <property name="toolTip">
+           <string>Ajuster à la fenêtre</string>
+          </property>
+          <property name="role" stdset="0">
+           <string>toolText</string>
+          </property>
+          <property name="toolButtonStyle">
+           <enum>Qt::ToolButtonTextBesideIcon</enum>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>34</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="timelineBodyLayout">
+     <property name="spacing">
+      <number>10</number>
+     </property>
+     <item>
+      <widget class="QWidget" name="trackHeaders" native="true">
+       <property name="minimumSize">
+        <size>
+         <width>150</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>150</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <layout class="QVBoxLayout" name="trackHeadersLayout">
+        <property name="spacing">
+         <number>7</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QToolButton" name="addTrackButton">
+          <property name="text">
+           <string>Ajouter une piste</string>
+          </property>
+          <property name="role" stdset="0">
+           <string>link</string>
+          </property>
+          <property name="toolButtonStyle">
+           <enum>Qt::ToolButtonTextBesideIcon</enum>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>28</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>28</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="timelineViewLayout">
+       <property name="spacing">
+        <number>4</number>
+       </property>
+       <item>
+        <widget class="TimelineView" name="timelineView">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QScrollBar" name="timelineScrollBar">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>TimelineView</class>
+   <extends>QWidget</extends>
+   <header>view.editor.timeline.timeline_view</header>
+  </customwidget>
+ </customwidgets>
+ <resources />
+ <connections />
+</ui>
