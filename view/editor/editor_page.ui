@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>EditorPage</class>
+ <widget class="QWidget" name="EditorPage" native="true">
+  <property name="windowTitle">
+   <string>Clipso</string>
+  </property>
+  <layout class="QVBoxLayout" name="rootLayout">
+   <property name="spacing">
+    <number>8</number>
+   </property>
+   <property name="leftMargin">
+    <number>12</number>
+   </property>
+   <property name="topMargin">
+    <number>8</number>
+   </property>
+   <property name="rightMargin">
+    <number>12</number>
+   </property>
+   <property name="bottomMargin">
+    <number>12</number>
+   </property>
+   <item>
+    <widget class="QWidget" name="topBar" native="true">
+     <layout class="QHBoxLayout" name="topBarLayout">
+      <property name="spacing">
+       <number>4</number>
+      </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QToolButton" name="logoButton">
+        <property name="text">
+         <string />
+        </property>
+        <property name="toolTip">
+         <string>Retour à l'accueil</string>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>36</width>
+          <height>36</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>36</width>
+          <height>36</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="appNameLabel">
+        <property name="text">
+         <string>Clipso</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="topBarGap">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Fixed</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>18</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QToolButton" name="fileMenuButton">
+        <property name="text">
+         <string>Fichier</string>
+        </property>
+        <property name="role" stdset="0">
+         <string>menu</string>
+        </property>
+        <property name="popupMode">
+         <enum>QToolButton::InstantPopup</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="editMenuButton">
+        <property name="text">
+         <string>Édition</string>
+        </property>
+        <property name="role" stdset="0">
+         <string>menu</string>
+        </property>
+        <property name="popupMode">
+         <enum>QToolButton::InstantPopup</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="viewMenuButton">
+        <property name="text">
+         <string>Affichage</string>
+        </property>
+        <property name="role" stdset="0">
+         <string>menu</string>
+        </property>
+        <property name="popupMode">
+         <enum>QToolButton::InstantPopup</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="topBarLeftSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QFrame" name="projectPill">
+        <layout class="QHBoxLayout" name="projectPillLayout">
+         <property name="spacing">
+          <number>8</number>
+         </property>
+         <property name="leftMargin">
+          <number>14</number>
+         </property>
+         <property name="topMargin">
+          <number>4</number>
+         </property>
+         <property name="rightMargin">
+          <number>8</number>
+         </property>
+         <property name="bottomMargin">
+          <number>4</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="projectIconLabel">
+           <property name="text">
+            <string />
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>18</width>
+             <height>18</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>18</width>
+             <height>18</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="projectNameLabel">
+           <property name="text">
+            <string>Vacances à Biarritz</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="projectSavedLabel">
+           <property name="text">
+            <string>· enregistré il y a 1 min</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="renameProjectButton">
+           <property name="text">
+            <string />
+           </property>
+           <property name="toolTip">
+            <string>Renommer le projet</string>
+           </property>
+           <property name="role" stdset="0">
+            <string>icon</string>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>26</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>26</width>
+             <height>26</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <spacer name="topBarRightSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QToolButton" name="undoButton">
+        <property name="text">
+         <string />
+        </property>
+        <property name="toolTip">
+         <string>Annuler (Ctrl+Z)</string>
+        </property>
+        <property name="role" stdset="0">
+         <string>icon</string>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>36</width>
+          <height>36</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>36</width>
+          <height>36</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="redoButton">
+        <property name="text">
+         <string />
+        </property>
+        <property name="toolTip">
+         <string>Rétablir (Ctrl+Maj+Z)</string>
+        </property>
+        <property name="role" stdset="0">
+         <string>icon</string>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>36</width>
+          <height>36</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>36</width>
+          <height>36</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="helpButton">
+        <property name="text">
+         <string />
+        </property>
+        <property name="toolTip">
+         <string>Aide</string>
+        </property>
+        <property name="role" stdset="0">
+         <string>icon</string>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>36</width>
+          <height>36</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>36</width>
+          <height>36</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="exportGap">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Fixed</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>6</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="exportButton">
+        <property name="text">
+         <string>Exporter</string>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>128</width>
+          <height>40</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QSplitter" name="editorSplitter">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="handleWidth">
+      <number>10</number>
+     </property>
+     <property name="childrenCollapsible">
+      <bool>false</bool>
+     </property>
+     <widget class="QSplitter" name="panelsSplitter">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="handleWidth">
+       <number>10</number>
+      </property>
+      <property name="childrenCollapsible">
+       <bool>false</bool>
+      </property>
+      <widget class="MediaPanel" name="mediaPanel" />
+      <widget class="PreviewPanel" name="previewPanel" />
+      <widget class="PropertiesPanel" name="propertiesPanel" />
+     </widget>
+     <widget class="TimelinePanel" name="timelinePanel" />
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MediaPanel</class>
+   <extends>QWidget</extends>
+   <header>view.editor.media.media_panel</header>
+  </customwidget>
+  <customwidget>
+   <class>PreviewPanel</class>
+   <extends>QWidget</extends>
+   <header>view.editor.preview.preview_panel</header>
+  </customwidget>
+  <customwidget>
+   <class>PropertiesPanel</class>
+   <extends>QWidget</extends>
+   <header>view.editor.properties.properties_panel</header>
+  </customwidget>
+  <customwidget>
+   <class>TimelinePanel</class>
+   <extends>QWidget</extends>
+   <header>view.editor.timeline.timeline_panel</header>
+  </customwidget>
+ </customwidgets>
+ <resources />
+ <connections />
+</ui>
