@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PreviewPanel</class>
+ <widget class="QWidget" name="PreviewPanel" native="true">
+  <property name="minimumSize">
+   <size>
+    <width>420</width>
+    <height>0</height>
+   </size>
+  </property>
+  <layout class="QVBoxLayout" name="previewLayout">
+   <property name="spacing">
+    <number>12</number>
+   </property>
+   <property name="leftMargin">
+    <number>14</number>
+   </property>
+   <property name="topMargin">
+    <number>14</number>
+   </property>
+   <property name="rightMargin">
+    <number>14</number>
+   </property>
+   <property name="bottomMargin">
+    <number>14</number>
+   </property>
+   <item>
+    <layout class="QHBoxLayout" name="previewHeaderLayout">
+     <property name="spacing">
+      <number>10</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="previewTitleLabel">
+       <property name="text">
+        <string>Aperçu</string>
+       </property>
+       <property name="role" stdset="0">
+        <string>panelTitle</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="previewInfoLabel">
+       <property name="text">
+        <string>16:9 · 1080p · 30 ips</string>
+       </property>
+       <property name="role" stdset="0">
+        <string>badge</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="previewHeaderSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QToolButton" name="fitPreviewButton">
+       <property name="text">
+        <string>Ajuster</string>
+       </property>
+       <property name="role" stdset="0">
+        <string>soft</string>
+       </property>
+       <property name="popupMode">
+        <enum>QToolButton::InstantPopup</enum>
+       </property>
+       <property name="toolButtonStyle">
+        <enum>Qt::ToolButtonTextBesideIcon</enum>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::RightToLeft</enum>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="VideoView" name="videoView">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="controlsLayout" stretch="1,0,1">
+     <property name="spacing">
+      <number>10</number>
+     </property>
+     <item>
+      <layout class="QHBoxLayout" name="controlsLeftLayout">
+       <item>
+        <widget class="QLabel" name="timecodeLabel">
+         <property name="text">
+          <string>00:00:32:19 / 00:00:58:00</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="controlsLeftSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="playbackLayout">
+       <property name="spacing">
+        <number>10</number>
+       </property>
+       <item>
+        <widget class="QToolButton" name="skipStartButton">
+         <property name="text">
+          <string />
+         </property>
+         <property name="toolTip">
+          <string>Aller au début</string>
+         </property>
+         <property name="role" stdset="0">
+          <string>icon</string>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>36</width>
+           <height>36</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>36</width>
+           <height>36</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="previousFrameButton">
+         <property name="text">
+          <string />
+         </property>
+         <property name="toolTip">
+          <string>Image précédente</string>
+         </property>
+         <property name="role" stdset="0">
+          <string>icon</string>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>36</width>
+           <height>36</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>36</width>
+           <height>36</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="playButton">
+         <property name="text">
+          <string />
+         </property>
+         <property name="toolTip">
+          <string>Lecture (Espace)</string>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>46</width>
+           <height>46</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>46</width>
+           <height>46</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="nextFrameButton">
+         <property name="text">
+          <string />
+         </property>
+         <property name="toolTip">
+          <string>Image suivante</string>
+         </property>
+         <property name="role" stdset="0">
+          <string>icon</string>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>36</width>
+           <height>36</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>36</width>
+           <height>36</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="skipEndButton">
+         <property name="text">
+          <string />
+         </property>
+         <property name="toolTip">
+          <string>Aller à la fin</string>
+         </property>
+         <property name="role" stdset="0">
+          <string>icon</string>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>36</width>
+           <height>36</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>36</width>
+           <height>36</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="controlsRightLayout">
+       <property name="spacing">
+        <number>8</number>
+       </property>
+       <item>
+        <spacer name="controlsRightSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QToolButton" name="volumeButton">
+         <property name="text">
+          <string />
+         </property>
+         <property name="toolTip">
+          <string>Couper le son</string>
+         </property>
+         <property name="role" stdset="0">
+          <string>icon</string>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>36</width>
+           <height>36</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>36</width>
+           <height>36</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSlider" name="volumeSlider">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="value">
+          <number>70</number>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>110</width>
+           <height>24</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>110</width>
+           <height>24</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="fullscreenButton">
+         <property name="text">
+          <string />
+         </property>
+         <property name="toolTip">
+          <string>Plein écran</string>
+         </property>
+         <property name="role" stdset="0">
+          <string>icon</string>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>36</width>
+           <height>36</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>36</width>
+           <height>36</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>VideoView</class>
+   <extends>QWidget</extends>
+   <header>view.editor.preview.video_view</header>
+  </customwidget>
+ </customwidgets>
+ <resources />
+ <connections />
+</ui>
