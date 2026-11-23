@@ -19,7 +19,7 @@ from moviepy import (
 )
 
 from model.effects import animate_text, apply_blur, apply_filters
-from model.project import Clip, Project
+from model.project import Clip, Project, even
 from model.settings import AudioSettings
 
 FORMATS = ("mp4", "mov", "webm", "gif")
@@ -195,9 +195,15 @@ def _picture(clip: Clip, size: tuple[int, int], reference: tuple[int, int], sour
         return layer.with_duration(clip.duration).with_start(clip.start)
 
     if clip.kind == "video":
-        source = VideoFileClip(str(clip.media.path), audio=False)
+        media = clip.media
+        # FFmpeg redimensionne pendant le décodage : 4 fois plus rapide que de réduire du 1080p après coup
+        target = None
+        if media.width and media.height:
+            factor = min(size[0] / media.width, size[1] / media.height)
+            target = (even(media.width * factor), even(media.height * factor))
+        source = VideoFileClip(str(media.path), audio=False, target_resolution=target)
         sources.append(source)
-        layer = _fit(source.subclipped(clip.in_point, clip.in_point + clip.duration), size)
+        layer = source.subclipped(clip.in_point, clip.in_point + clip.duration)
         position = "center"
     else:
         settings = clip.image
@@ -262,11 +268,6 @@ def _apply_audio(sound, settings: AudioSettings, max_volume: float, duration: fl
     if settings.fade_out:
         effects.append(afx.AudioFadeOut(min(settings.fade_out, duration)))
     return sound.with_effects(effects) if effects else sound
-
-
-def _fit(layer, size: tuple[int, int]):
-    factor = min(size[0] / layer.w, size[1] / layer.h)
-    return layer if factor == 1 else layer.resized(factor)
 
 
 def image_factor(width: int, height: int, clip: Clip, size: tuple[int, int], reference: tuple[int, int]) -> float:
