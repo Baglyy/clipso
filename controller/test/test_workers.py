@@ -1,6 +1,6 @@
 import pytest
 
-from controller.workers import EstimateWorker, ExportWorker, ImportWorker, ProgressLogger
+from controller.workers import EstimateWorker, ExportWorker, ImportWorker, PreviewWorker, ProgressLogger
 from model.export import ExportCancelledError, ExportSettings
 from model.media import Media
 from model.project import Project
@@ -95,3 +95,44 @@ def test_estimate_worker_cancelled_says_nothing(project, tmp_path):
     worker.cancel()
     worker.run()
     assert sizes == []
+
+
+def test_preview_worker_renders_last_request(media_files, qtbot):
+    project = Project(resolution=90)
+    media = Media.from_file(media_files["image"])
+    project.add_media(media)
+    project.place(media)
+    worker = PreviewWorker()
+    worker.renderer.resolution = 90
+    frames = []
+    worker.frame_ready.connect(frames.append)
+    worker.start()
+    try:
+        worker.rebuild(project)
+        worker.request(1.0)
+        qtbot.waitUntil(lambda: len(frames) > 0, timeout=30_000)
+        assert frames[-1].shape == (90, 160, 3)
+    finally:
+        worker.stop()
+    assert not worker.isRunning()
+    assert worker.renderer.video is None
+
+
+def test_preview_worker_survives_broken_file(media_files, tmp_path, qtbot):
+    project = Project()
+    media = Media.from_file(media_files["video"])
+    project.add_media(media)
+    project.place(media)
+    media.path = tmp_path / "disparu.mp4"
+    worker = PreviewWorker()
+    frames = []
+    worker.frame_ready.connect(frames.append)
+    worker.start()
+    try:
+        worker.rebuild(project)
+        worker.request(0.5)
+        qtbot.waitUntil(lambda: len(frames) > 0, timeout=30_000)
+        assert frames == [None]
+        assert worker.isRunning()
+    finally:
+        worker.stop()
