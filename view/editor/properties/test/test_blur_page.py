@@ -42,3 +42,11 @@ def test_user_changes_emit_changed(page, qtbot):
         page.blurIntensitySlider.setValue(50)
     with qtbot.waitSignal(page.changed):
         qtbot.mouseClick(page.blurBackgroundToggle, Qt.MouseButton.LeftButton)
+
+
+def test_feather_only_with_background(page):
+    assert not page.blurFeatherSlider.isEnabled()
+    page.set_values({"kind": "gaussian", "intensity": 10, "feather": 20, "background": True})
+    assert page.blurFeatherSlider.isEnabled()
+    page.blurBackgroundToggle.click()
+    assert not page.blurFeatherSlider.isEnabled()

@@ -161,3 +161,40 @@ def test_preview_frame(project):
     frame = preview_frame(project, 0.5, 90)
     assert frame.shape == (90, 160, 3)
     assert frame.dtype == np.uint8
+
+
+def test_filters_are_exported(project):
+    video = project.tracks[1].clips[0]
+    before = preview_frame(project, 0.1, 90)
+    video.filters.preset = "mono"
+    after = preview_frame(project, 0.1, 90)
+    assert not np.array_equal(before, after)
+    assert np.ptp(after[85, 30].astype(int)) == 0
+
+
+def test_blur_is_exported(project):
+    before = preview_frame(project, 0.1, 90)
+    project.tracks[1].clips[0].blur.intensity = 100
+    assert not np.array_equal(before, preview_frame(project, 0.1, 90))
+
+
+@pytest.mark.parametrize("animation", ["none", "fade", "slide", "zoom"])
+def test_text_animations(animation):
+    project = Project()
+    project.add_text(0).text_style.animation = animation
+    start = preview_frame(project, 0, 180)
+    middle = preview_frame(project, 0.25, 180)
+    end = preview_frame(project, 1, 180)
+    assert end.max() > 0
+    if animation == "none":
+        assert np.array_equal(start, end)
+    else:
+        assert start.sum() < end.sum()
+        assert not np.array_equal(middle, start)
+        assert not np.array_equal(middle, end)
+
+
+def test_empty_text_is_not_exported():
+    project = Project()
+    project.add_text(0, "  ")
+    assert preview_frame(project, 1, 90).max() == 0

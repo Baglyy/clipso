@@ -173,6 +173,8 @@ def _build_video(project: Project, size: tuple[int, int], sources: list) -> Comp
     # la première piste est au-dessus, donc on empile à partir de la dernière
     for track in reversed(project.tracks):
         for clip in track.clips:
+            if clip.kind == "text" and not clip.text.strip():
+                continue
             # une piste vidéo masquée garde son son
             if clip.kind != "audio" and not track.hidden:
                 layers.append(_picture(clip, size, sources))
@@ -189,8 +191,8 @@ def _build_video(project: Project, size: tuple[int, int], sources: list) -> Comp
 
 def _picture(clip: Clip, size: tuple[int, int], sources: list):
     if clip.kind == "text":
-        layer = animate_text(_text(clip, size), clip.text_style.animation)
-        return layer.with_duration(clip.duration).with_start(clip.start)
+        layer = _text(clip, size).with_duration(clip.duration)
+        return animate_text(layer, clip.text_style.animation).with_start(clip.start)
 
     if clip.kind == "video":
         source = VideoFileClip(str(clip.media.path), audio=False)
