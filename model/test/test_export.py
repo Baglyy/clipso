@@ -3,7 +3,16 @@ import numpy as np
 import pytest
 from proglog import ProgressBarLogger
 
-from model.export import ExportCancelledError, ExportSettings, crf, estimate_size, export, gif_colors, preview_frame
+from model.export import (
+    ExportCancelledError,
+    ExportSettings,
+    crf,
+    estimate_size,
+    export,
+    gif_colors,
+    image_factor,
+    preview_frame,
+)
 from model.media import Media
 from model.project import Clip, Project
 
@@ -98,6 +107,8 @@ def test_image_position(project, tmp_path):
     project.tracks[0].clips.pop()  # sans le texte
     logo = project.tracks[0].clips[0]
     logo.image.x, logo.image.y = 10, 10
+    # même résolution que l'aperçu, sinon le logo de 40 × 20 ne fait plus que 3 pixels
+    project.resolution = 90
     frame = preview_frame(project, 0.5, 90)
     assert frame[9, 16, 0] > 200 and frame[9, 16, 1] < 60
     assert not (frame[80, 150, 0] > 200 and frame[80, 150, 1] < 60)
@@ -161,3 +172,23 @@ def test_preview_frame(project):
     frame = preview_frame(project, 0.5, 90)
     assert frame.shape == (90, 160, 3)
     assert frame.dtype == np.uint8
+
+
+def logo_clip(width, height, **image):
+    clip = Clip(0, 5, Media("logo.png", "image", width=width, height=height))
+    for name, value in image.items():
+        setattr(clip.image, name, value)
+    return clip
+
+
+def test_image_keeps_same_place_at_every_resolution():
+    clip = logo_clip(800, 800)
+    full = image_factor(800, 800, clip, (1920, 1080), (1920, 1080))
+    small = image_factor(800, 800, clip, (640, 360), (1920, 1080))
+    assert full == 1
+    assert small == pytest.approx(1 / 3)
+
+
+def test_big_image_fits_in_frame():
+    clip = logo_clip(3840, 2160, scale=50)
+    assert image_factor(3840, 2160, clip, (1920, 1080), (1920, 1080)) == pytest.approx(0.25)

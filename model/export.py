@@ -170,13 +170,14 @@ def _write_gif(video, settings: ExportSettings, path: Path, logger):
 def build_video(project: Project, size: tuple[int, int], sources: list) -> CompositeVideoClip:
     """Les fichiers ouverts sont ajoutés à sources : à refermer avec close_sources()."""
     layers = [ColorClip(size, color=(0, 0, 0), duration=project.duration)]
+    reference = project.frame_size()
     sounds = []
     # la première piste est au-dessus, donc on empile à partir de la dernière
     for track in reversed(project.tracks):
         for clip in track.clips:
             # une piste vidéo masquée garde son son
             if clip.kind != "audio" and not track.hidden:
-                layers.append(_picture(clip, size, sources))
+                layers.append(_picture(clip, size, reference, sources))
             if clip.kind in ("audio", "video") and not (track.hidden and track.kind == "audio"):
                 sound = _sound(clip, sources)
                 if sound is not None:
@@ -188,7 +189,7 @@ def build_video(project: Project, size: tuple[int, int], sources: list) -> Compo
     return video
 
 
-def _picture(clip: Clip, size: tuple[int, int], sources: list):
+def _picture(clip: Clip, size: tuple[int, int], reference: tuple[int, int], sources: list):
     if clip.kind == "text":
         layer = animate_text(_text(clip, size), clip.text_style.animation)
         return layer.with_duration(clip.duration).with_start(clip.start)
@@ -196,11 +197,14 @@ def _picture(clip: Clip, size: tuple[int, int], sources: list):
     if clip.kind == "video":
         source = VideoFileClip(str(clip.media.path), audio=False)
         sources.append(source)
-        layer = _fit(source.subclipped(clip.in_point, clip.in_point + clip.duration), size, upscale=True)
+        layer = _fit(source.subclipped(clip.in_point, clip.in_point + clip.duration), size)
         position = "center"
     else:
         settings = clip.image
-        layer = _fit(ImageClip(str(clip.media.path)), size, upscale=False, scale=settings.scale / 100)
+        layer = ImageClip(str(clip.media.path))
+        factor = image_factor(layer.w, layer.h, clip, size, reference)
+        if factor != 1:
+            layer = layer.resized(factor)
         if settings.rotation:
             if layer.mask is None:
                 # sinon les coins ajoutés par la rotation sont noirs
@@ -260,12 +264,16 @@ def _apply_audio(sound, settings: AudioSettings, max_volume: float, duration: fl
     return sound.with_effects(effects) if effects else sound
 
 
-def _fit(layer, size: tuple[int, int], upscale: bool, scale: float = 1.0):
+def _fit(layer, size: tuple[int, int]):
     factor = min(size[0] / layer.w, size[1] / layer.h)
-    if not upscale:
-        factor = min(factor, 1)
-    factor *= scale
     return layer if factor == 1 else layer.resized(factor)
+
+
+def image_factor(width: int, height: int, clip: Clip, size: tuple[int, int], reference: tuple[int, int]) -> float:
+    """Calculé dans l'image du projet (reference) puis ramené à size, pour qu'un logo occupe
+    la même place en 360p (aperçu) qu'en 1080p (export)."""
+    fit = min(reference[0] / width, reference[1] / height, 1)
+    return fit * clip.image.scale / 100 * size[0] / reference[0]
 
 
 def close_sources(sources: list):
