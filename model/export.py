@@ -112,16 +112,16 @@ def estimate_size(project: Project, settings: ExportSettings, logger=None) -> in
 def preview_frame(project: Project, time: float, resolution: int = 120) -> np.ndarray:
     sources = []
     try:
-        video = _build_video(project, project.frame_size(resolution), sources)
+        video = build_video(project, project.frame_size(resolution), sources)
         return video.get_frame(min(time, project.duration - 0.01)).astype(np.uint8)
     finally:
-        _close(sources)
+        close_sources(sources)
 
 
 def _render(project: Project, settings: ExportSettings, path: Path, start: float, end: float, logger):
     sources = []  # fichiers ouverts à refermer
     try:
-        video = _build_video(project, project.frame_size(settings.resolution), sources)
+        video = build_video(project, project.frame_size(settings.resolution), sources)
         if (start, end) != (0, project.duration):
             video = video.subclipped(start, end)
         if settings.format == "gif":
@@ -142,7 +142,7 @@ def _render(project: Project, settings: ExportSettings, path: Path, start: float
             logger=logger,
         )
     finally:
-        _close(sources)
+        close_sources(sources)
 
 
 def _write_gif(video, settings: ExportSettings, path: Path, logger):
@@ -167,7 +167,8 @@ def _write_gif(video, settings: ExportSettings, path: Path, logger):
         subprocess.run(command, check=True, capture_output=True)
 
 
-def _build_video(project: Project, size: tuple[int, int], sources: list) -> CompositeVideoClip:
+def build_video(project: Project, size: tuple[int, int], sources: list) -> CompositeVideoClip:
+    """Les fichiers ouverts sont ajoutés à sources : à refermer avec close_sources()."""
     layers = [ColorClip(size, color=(0, 0, 0), duration=project.duration)]
     sounds = []
     # la première piste est au-dessus, donc on empile à partir de la dernière
@@ -267,6 +268,6 @@ def _fit(layer, size: tuple[int, int], upscale: bool, scale: float = 1.0):
     return layer if factor == 1 else layer.resized(factor)
 
 
-def _close(sources: list):
+def close_sources(sources: list):
     for source in sources:
         source.close()
