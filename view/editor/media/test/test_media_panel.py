@@ -153,3 +153,22 @@ def test_paint_event_does_not_crash(panel, sample_media, qtbot):
     qtbot.waitExposed(panel)
 
     panel.repaint()
+
+
+def test_set_importing(panel, sample_media):
+    panel.set_media(sample_media)
+    panel.set_importing(1, 3)
+    assert panel.mediaCountLabel.text() == "Import… 1/3"
+    assert not panel.importButton.isEnabled()
+    panel.set_importing(3, 3)
+    assert panel.mediaCountLabel.text() == "4 fichiers"
+    assert panel.importButton.isEnabled()
+
+
+def test_tile_double_click_is_forwarded(panel, sample_media, qtbot):
+    for index, media in enumerate(sample_media):
+        media["index"] = index
+    panel.set_media(sample_media)
+    with qtbot.waitSignal(panel.media_activated) as blocker:
+        panel.tiles[2].activated.emit(2)
+    assert blocker.args == [2]

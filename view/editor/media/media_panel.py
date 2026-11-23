@@ -3,7 +3,7 @@
 from pathlib import Path
 
 from PyQt6 import uic
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import QWidget
 
 from view.editor.media.media_tile import MediaTile
@@ -14,6 +14,8 @@ COLUMNS = 2
 
 
 class MediaPanel(QWidget):
+    media_activated = pyqtSignal(int)
+
     def __init__(self, parent=None):
         super().__init__(parent)
         uic.loadUi(Path(__file__).parent / "media_panel.ui", self)
@@ -39,8 +41,18 @@ class MediaPanel(QWidget):
             self.mediaGrid.removeWidget(tile)
             tile.deleteLater()
         self.tiles = [MediaTile(item) for item in media]
+        for tile in self.tiles:
+            tile.activated.connect(self.media_activated)
         self.mediaCountLabel.setText(f"{len(media)} fichiers")
         self._refresh_grid()
+
+    def set_importing(self, done: int, total: int):
+        importing = done < total
+        self.importButton.setEnabled(not importing)
+        if importing:
+            self.mediaCountLabel.setText(f"Import… {done}/{total}")
+        else:
+            self.mediaCountLabel.setText(f"{len(self.tiles)} fichiers")
 
     def _refresh_grid(self):
         kind = next((kind for button, kind in self._filters.items() if button.isChecked()), None)
