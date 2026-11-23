@@ -111,3 +111,43 @@ def test_show_covers_parent_window(qtbot, parent, dialog):
     qtbot.waitExposed(dialog)
     assert dialog.geometry() == parent.window().geometry()
     dialog.repaint()
+
+
+def test_settings_reads_choices(dialog, qtbot):
+    qtbot.mouseClick(dialog.formatGifButton, Qt.MouseButton.LeftButton)
+    qtbot.mouseClick(dialog.resolution720Button, Qt.MouseButton.LeftButton)
+    qtbot.mouseClick(dialog.fps24Button, Qt.MouseButton.LeftButton)
+    dialog.qualitySlider.setValue(55)
+    dialog.set_project("Vacances", 65, "16:9", 1080, 30, "/tmp/videos")
+    assert dialog.settings() == {
+        "folder": "/tmp/videos",
+        "file_name": "Vacances",
+        "format": "gif",
+        "resolution": 720,
+        "fps": 24,
+        "quality": 55,
+    }
+    assert dialog.summaryMetaLabel.text() == "01:05 · 16:9 · 1080p · 30 ips"
+
+
+def test_changes_emit_settings_changed(dialog, qtbot):
+    with qtbot.waitSignal(dialog.settings_changed):
+        qtbot.mouseClick(dialog.formatWebmButton, Qt.MouseButton.LeftButton)
+    with qtbot.waitSignal(dialog.settings_changed):
+        dialog.qualitySlider.setValue(20)
+
+
+def test_estimated_size(dialog):
+    dialog.set_estimated_size(None)
+    assert dialog.summarySizeLabel.text() == "Taille estimée : calcul…"
+    dialog.set_estimated_size(65_000_000)
+    assert dialog.summarySizeLabel.text() == "Taille estimée ≈ 65 Mo"
+
+
+def test_thumbnail(dialog):
+    from PyQt6.QtGui import QImage
+
+    dialog.set_thumbnail(QImage(160, 90, QImage.Format.Format_RGB888))
+    pixmap = dialog.summaryThumbLabel.pixmap()
+    assert pixmap.height() == 66
+    assert pixmap.width() <= 118

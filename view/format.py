@@ -28,3 +28,12 @@ def percent(value: int) -> str:
 def signed(value: int) -> str:
     """+12, -5 ou 0."""
     return f"{value:+d}" if value else "0"
+
+
+def file_size(size: int) -> str:
+    """850 Ko, 65 Mo ou 1,2 Go."""
+    if size >= 1_000_000_000:
+        return f"{size / 1_000_000_000:.1f} Go".replace(".", ",")
+    if size >= 1_000_000:
+        return f"{size / 1_000_000:.0f} Mo"
+    return f"{max(1, round(size / 1000))} Ko"
