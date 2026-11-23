@@ -195,3 +195,22 @@ def test_paint_event_does_not_crash(panel, sample_tracks, qtbot):
     qtbot.waitExposed(panel)
 
     panel.repaint()
+
+
+def test_track_buttons_are_forwarded(panel, sample_tracks, qtbot):
+    panel.set_tracks(sample_tracks, 10)
+    with qtbot.waitSignal(panel.track_hidden_toggled) as blocker:
+        panel.headers[1].visibility_button.click()
+    assert blocker.args == [1, True]
+    with qtbot.waitSignal(panel.track_locked_toggled) as blocker:
+        panel.headers[0].lock_button.click()
+    assert blocker.args == [0, True]
+
+
+def test_track_state_is_shown(panel, sample_tracks):
+    sample_tracks[0]["hidden"] = True
+    sample_tracks[0]["locked"] = True
+    panel.set_tracks(sample_tracks, 10)
+    assert panel.headers[0].visibility_button.isChecked()
+    assert panel.headers[0].lock_button.isChecked()
+    assert not panel.headers[1].visibility_button.isChecked()

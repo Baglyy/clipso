@@ -3,6 +3,7 @@ import sys
 from PyQt6.QtGui import QFontDatabase
 from PyQt6.QtWidgets import QApplication
 
+from controller.app_controller import AppController
 from view.main_window import MainWindow
 from view.theme import ASSETS
 
@@ -18,6 +19,8 @@ def main():
     app = QApplication(sys.argv)
     load_style(app)
     window = MainWindow()
+    # on garde une référence, sinon Python supprime le controller
+    controller = AppController(window)  # noqa: F841
     window.show()
     sys.exit(app.exec())
 

@@ -24,7 +24,6 @@ class PreviewPanel(QWidget):
         uic.loadUi(Path(__file__).parent / "preview_panel.ui", self)
         self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground)
         self.playing = False
-        # TODO: previewInfoLabel (« 16:9 · 1080p · 30 ips ») est figé dans preview_panel.ui
 
         setup_button(self.skipStartButton, "skip-back-fill", size=20)
         setup_button(self.previousFrameButton, "caret-left-bold", size=20)
@@ -64,6 +63,9 @@ class PreviewPanel(QWidget):
     def _update_play_icon(self):
         self.playButton.setIcon(icon("pause-fill" if self.playing else "play-fill", WHITE))
         self.playButton.setToolTip("Pause (Espace)" if self.playing else "Lecture (Espace)")
+
+    def set_format(self, aspect: str, resolution: int, fps: int):
+        self.previewInfoLabel.setText(f"{aspect} · {resolution}p · {fps} ips")
 
     def set_time(self, position: float, duration: float):
         self.timecodeLabel.setText(f"{timecode(position, FPS)} / {timecode(duration, FPS)}")

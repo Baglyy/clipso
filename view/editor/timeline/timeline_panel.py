@@ -3,7 +3,7 @@
 from pathlib import Path
 
 from PyQt6 import uic
-from PyQt6.QtCore import QSize, Qt
+from PyQt6.QtCore import QSize, Qt, pyqtSignal
 from PyQt6.QtWidgets import QWidget
 
 from view.editor.timeline.timeline_view import RULER_HEIGHT, TRACK_GAP, TRACK_HEIGHTS
@@ -15,6 +15,9 @@ ZOOM_STEP = 50
 
 
 class TimelinePanel(QWidget):
+    track_hidden_toggled = pyqtSignal(int, bool)
+    track_locked_toggled = pyqtSignal(int, bool)
+
     def __init__(self, parent=None):
         super().__init__(parent)
         uic.loadUi(Path(__file__).parent / "timeline_panel.ui", self)
@@ -63,8 +66,10 @@ class TimelinePanel(QWidget):
             if item.widget():
                 item.widget().deleteLater()
         self.headers = []
-        for track in tracks:
+        for index, track in enumerate(tracks):
             header = TrackHeader(track, TRACK_HEIGHTS[track["kind"]])
+            header.visibility_button.toggled.connect(lambda hidden, i=index: self.track_hidden_toggled.emit(i, hidden))
+            header.lock_button.toggled.connect(lambda locked, i=index: self.track_locked_toggled.emit(i, locked))
             layout.addWidget(header)
             self.headers.append(header)
         layout.addStretch()
