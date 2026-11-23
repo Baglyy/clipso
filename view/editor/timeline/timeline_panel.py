@@ -26,6 +26,7 @@ class TimelinePanel(QWidget):
 
         setup_button(self.timelineUndoButton, "arrow-counter-clockwise")
         setup_button(self.timelineRedoButton, "arrow-clockwise")
+        setup_button(self.addTextButton, "text-t")
         setup_button(self.cutButton, "scissors")
         setup_button(self.deleteButton, "trash")
         setup_button(self.zoomOutButton, "magnifying-glass-minus")

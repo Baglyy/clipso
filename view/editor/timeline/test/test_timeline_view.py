@@ -272,3 +272,10 @@ def test_paint_thumbnails_and_peaks(timeline):
             clip["peaks"] = [0.5, 1.0, 0.2]
     timeline.repaint()
     timeline.grab()
+
+
+def test_all_tracks_fit_in_height(timeline):
+    tracks = [{"name": kind, "kind": kind, "clips": []} for kind in ("text", "overlay", "video", "audio")]
+    timeline.set_tracks(tracks, 10)
+    rows = [row for _, row in timeline.track_rects()]
+    assert timeline.minimumHeight() >= rows[-1].bottom()

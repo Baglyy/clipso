@@ -102,3 +102,35 @@ def test_each_clip_has_its_own_settings():
     a, b = Clip(0, 1), Clip(0, 1)
     a.audio.volume = 50
     assert b.audio.volume == 100
+
+
+def test_add_text_creates_text_track():
+    project = Project()
+    first = project.add_text(2)
+    second = project.add_text(10, "Fin")
+    assert [track.kind for track in project.tracks] == ["text", "overlay", "video", "audio"]
+    assert project.tracks[0].clips == [first, second]
+    assert (first.start, first.duration, first.text) == (2, 5, "Votre texte")
+    assert second.text == "Fin"
+
+
+def test_text_is_not_moved_by_images():
+    project = Project()
+    project.place(media("image"))
+    assert project.add_text(1).start == 1
+    assert project.add_text(3).start == 6
+
+
+def test_add_text_on_locked_track():
+    project = Project()
+    project.add_text(0)
+    project.tracks[0].locked = True
+    with pytest.raises(ValueError, match="verrouillée"):
+        project.add_text(10)
+
+
+def test_media_cannot_go_on_text_track():
+    project = Project()
+    project.add_text(0)
+    with pytest.raises(ValueError, match="Texte"):
+        project.place(media("image"), project.tracks[0])

@@ -50,6 +50,8 @@ class AppController:
         self.editor.mediaPanel.media_activated.connect(self.place_media)
         self.editor.timeline.media_dropped.connect(self.drop_media)
         self.editor.timeline.clip_selected.connect(self.select_clip)
+        self.editor.timelinePanel.addTextButton.clicked.connect(self.add_text)
+        self.editor.propertiesPanel.emptyActionButton.clicked.connect(self.add_text)
         self.editor.timelinePanel.track_hidden_toggled.connect(self.set_track_hidden)
         self.editor.timelinePanel.track_locked_toggled.connect(self.set_track_locked)
         self.editor.propertiesPanel.settings_changed.connect(self.change_settings)
@@ -177,6 +179,18 @@ class AppController:
             QMessageBox.warning(self.window, "Timeline", str(error))
             return
         self.refresh()
+
+    def add_text(self):
+        try:
+            clip = self.project.add_text(self.editor.timeline.position)
+        except ValueError as error:
+            QMessageBox.warning(self.window, "Timeline", str(error))
+            return
+        self.selected_clip = clip
+        self.refresh()
+        text_edit = self.editor.propertiesPanel.textPage.textContentEdit
+        text_edit.setFocus()
+        text_edit.selectAll()
 
     def set_track_hidden(self, index: int, hidden: bool):
         self.project.tracks[index].hidden = hidden

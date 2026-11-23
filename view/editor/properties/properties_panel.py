@@ -27,11 +27,10 @@ DEFAULT_TAB = {"text": "text", "image": "image", "video": "filters", "audio": "a
 
 # onglet indisponible pour le clip : (icône, titre, explication, bouton d'action éventuel)
 EMPTY_STATES = {
-    # TODO: le texte d'aide cite la piste « Vidéo 2 » en dur
     "text": (
         "text-t",
         "Pas de texte sur ce clip",
-        "Ajoutez un titre dans la piste Vidéo 2 pour écrire par-dessus la vidéo.",
+        "Ajoutez un titre pour écrire par-dessus la vidéo.",
         "Ajouter un texte",
     ),
     "image": (

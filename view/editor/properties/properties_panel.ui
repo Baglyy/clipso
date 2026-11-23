@@ -349,7 +349,7 @@
           <item>
            <widget class="QLabel" name="emptyTextLabel">
             <property name="text">
-             <string>Ajoutez un titre dans la piste Vidéo 2 pour écrire par-dessus la vidéo.</string>
+             <string>Ajoutez un titre pour écrire par-dessus la vidéo.</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
