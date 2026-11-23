@@ -3,15 +3,17 @@
 from pathlib import Path
 
 from PyQt6 import uic
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import QLabel, QToolButton, QVBoxLayout, QWidget
 
 from view.format import signed
 from view.theme import GREEN, mix
-from view.ui_helpers import bind_value_label, clickable, setup_button
+from view.ui_helpers import bind_value_label, check_value, checked_value, clickable, setup_button
 
 
 class FiltersPage(QWidget):
+    changed = pyqtSignal()
+
     def __init__(self, parent=None):
         super().__init__(parent)
         uic.loadUi(Path(__file__).parent / "filters_page.ui", self)
@@ -35,14 +37,48 @@ class FiltersPage(QWidget):
         }
         for button, (title, color) in presets.items():
             self._decorate_preset(button, title, color)
+        self.presets = {
+            self.presetOriginalButton: "original",
+            self.presetWarmButton: "warm",
+            self.presetCoolButton: "cool",
+            self.presetMonoButton: "mono",
+            self.presetVintageButton: "vintage",
+            self.presetPastelButton: "pastel",
+        }
 
         setup_button(self.resetFiltersButton, "arrow-counter-clockwise-bold", size=14)
         self.resetFiltersButton.clicked.connect(self.reset)
 
+        for slider in self.sliders:
+            slider.valueChanged.connect(self.changed)
+        for button in self.presets:
+            button.clicked.connect(self.changed)
+
     def reset(self):
+        self.blockSignals(True)
         for slider in self.sliders:
             slider.setValue(0)
         self.presetOriginalButton.setChecked(True)
+        self.blockSignals(False)
+        self.changed.emit()
+
+    def values(self) -> dict:
+        return {
+            "preset": checked_value(self.presets),
+            "brightness": self.brightnessSlider.value(),
+            "contrast": self.contrastSlider.value(),
+            "saturation": self.saturationSlider.value(),
+            "temperature": self.temperatureSlider.value(),
+        }
+
+    def set_values(self, values: dict):
+        self.blockSignals(True)
+        check_value(self.presets, values["preset"])
+        self.brightnessSlider.setValue(values["brightness"])
+        self.contrastSlider.setValue(values["contrast"])
+        self.saturationSlider.setValue(values["saturation"])
+        self.temperatureSlider.setValue(values["temperature"])
+        self.blockSignals(False)
 
     @staticmethod
     def _decorate_preset(button: QToolButton, title: str, color: str):

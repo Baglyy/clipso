@@ -68,3 +68,25 @@ def test_reset_button(qtbot, page):
     assert all(slider.value() == 0 for slider in page.sliders)
     assert page.presetOriginalButton.isChecked()
     assert not page.presetVintageButton.isChecked()
+
+
+FILTER_VALUES = {"preset": "vintage", "brightness": 10, "contrast": -20, "saturation": 30, "temperature": -40}
+
+
+def test_set_values_then_values(page, qtbot):
+    with qtbot.assertNotEmitted(page.changed):
+        page.set_values(FILTER_VALUES)
+    assert page.values() == FILTER_VALUES
+
+
+def test_reset_emits_changed_once(page, qtbot):
+    page.set_values(FILTER_VALUES)
+    with qtbot.waitSignal(page.changed):
+        page.reset()
+    assert page.values() == {"preset": "original", "brightness": 0, "contrast": 0, "saturation": 0, "temperature": 0}
+
+
+def test_preset_click_emits_changed(page, qtbot):
+    with qtbot.waitSignal(page.changed):
+        qtbot.mouseClick(page.presetMonoButton, Qt.MouseButton.LeftButton)
+    assert page.values()["preset"] == "mono"

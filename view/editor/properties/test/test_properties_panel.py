@@ -91,3 +91,17 @@ def test_same_tab_refreshed_when_clip_changes(panel):
     assert panel.audioTabButton.isChecked()
     assert panel.propertyStack.currentIndex() == EMPTY_PAGE
     assert panel.emptyTitleLabel.text() == "Pas de son sur ce clip"
+
+
+def test_settings_changed_gives_tab_and_values(panel, qtbot):
+    with qtbot.waitSignal(panel.settings_changed) as blocker:
+        panel.audioPage.audioVolumeSlider.setValue(30)
+    tab, values = blocker.args
+    assert tab == "audio"
+    assert values["volume"] == 30
+
+
+def test_set_values_fills_pages(panel):
+    panel.set_values({"blur": {"kind": "radial", "intensity": 12, "feather": 5, "background": False}})
+    assert panel.blurPage.values()["kind"] == "radial"
+    assert panel.blurPage.blurIntensitySlider.value() == 12
