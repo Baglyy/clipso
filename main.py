@@ -20,7 +20,9 @@ def main():
     load_style(app)
     window = MainWindow()
     # on garde une référence, sinon Python supprime le controller
-    controller = AppController(window)  # noqa: F841
+    controller = AppController(window)
+    # Qt plante si le thread de l'aperçu tourne encore quand l'appli se ferme
+    app.aboutToQuit.connect(controller.close)
     window.show()
     sys.exit(app.exec())
 

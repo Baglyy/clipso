@@ -1,5 +1,6 @@
 """Export du projet : moviepy assemble les clips, FFmpeg encode."""
 
+import math
 import subprocess
 import tempfile
 from dataclasses import dataclass
@@ -275,6 +276,21 @@ def image_factor(width: int, height: int, clip: Clip, size: tuple[int, int], ref
     la même place en 360p (aperçu) qu'en 1080p (export)."""
     fit = min(reference[0] / width, reference[1] / height, 1)
     return fit * clip.image.scale / 100 * size[0] / reference[0]
+
+
+def image_box(clip: Clip, size: tuple[int, int], reference: tuple[int, int]) -> tuple[float, float, float, float]:
+    """(x, y, largeur, hauteur) en pixels d'une image de taille size."""
+    settings = clip.image
+    factor = image_factor(clip.media.width, clip.media.height, clip, size, reference)
+    width, height = clip.media.width * factor, clip.media.height * factor
+    if settings.rotation:
+        # une image tournée prend plus de place : on garde le rectangle qui l'entoure
+        angle = math.radians(settings.rotation)
+        cos, sin = abs(math.cos(angle)), abs(math.sin(angle))
+        width, height = width * cos + height * sin, width * sin + height * cos
+    x = size[0] * settings.x / 100 - width / 2
+    y = size[1] * settings.y / 100 - height / 2
+    return x, y, width, height
 
 
 def close_sources(sources: list):

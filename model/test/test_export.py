@@ -10,6 +10,7 @@ from model.export import (
     estimate_size,
     export,
     gif_colors,
+    image_box,
     image_factor,
     preview_frame,
 )
@@ -192,3 +193,11 @@ def test_image_keeps_same_place_at_every_resolution():
 def test_big_image_fits_in_frame():
     clip = logo_clip(3840, 2160, scale=50)
     assert image_factor(3840, 2160, clip, (1920, 1080), (1920, 1080)) == pytest.approx(0.25)
+
+
+def test_image_box_position_and_rotation():
+    size = (1920, 1080)
+    assert image_box(logo_clip(200, 100, x=25, y=50), size, size) == (380, 490, 200, 100)
+    x, y, width, height = image_box(logo_clip(200, 100, rotation=90), size, size)
+    assert (width, height) == (pytest.approx(100), pytest.approx(200))
+    assert (x + width / 2, y + height / 2) == (pytest.approx(960), pytest.approx(540))
