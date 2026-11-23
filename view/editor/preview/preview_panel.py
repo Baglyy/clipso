@@ -65,11 +65,13 @@ class PreviewPanel(QWidget):
         self.playButton.setToolTip("Pause (Espace)" if self.playing else "Lecture (Espace)")
 
     def set_format(self, aspect: str, resolution: int, fps: int):
+        """aspect au format « 16:9 »."""
         self.previewInfoLabel.setText(f"{aspect} · {resolution}p · {fps} ips")
+        width, height = (int(part) for part in aspect.split(":"))
+        self.videoView.set_aspect(width / height)
 
     def set_time(self, position: float, duration: float):
         self.timecodeLabel.setText(f"{timecode(position, FPS)} / {timecode(duration, FPS)}")
 
-    def show_frame(self, **layers):
-        """Transmet l'image à afficher à la zone vidéo (voir VideoView.show_frame)."""
-        self.videoView.show_frame(**layers)
+    def show_image(self, image):
+        self.videoView.show_image(image)

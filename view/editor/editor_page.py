@@ -17,6 +17,7 @@ Key = QKeySequence.StandardKey
 class EditorPage(QWidget):
     home_requested = pyqtSignal()
     export_requested = pyqtSignal()
+    position_shown = pyqtSignal(float)
 
     def __init__(self):
         super().__init__()
@@ -141,18 +142,7 @@ class EditorPage(QWidget):
 
     def _show_position(self, seconds: float):
         self.previewPanel.set_time(seconds, self.duration)
-        active = {clip["kind"]: clip for _, clip in self.timeline.clips_at(seconds)}
-        video = active.get("video")
-        image = active.get("image")
-        text = active.get("text")
-        self.previewPanel.show_frame(
-            color=video["color"] if video else "",
-            source=video["name"] if video else "",
-            text=text["text"] if text else "",
-            logo=image is not None,
-            logo_selected=image is not None and image is self.timeline.selected,
-        )
+        self.position_shown.emit(seconds)
 
     def _on_clip_selected(self, track: dict, clip: dict):
         self.propertiesPanel.show_clip(track, clip)
-        self._show_position(self.timeline.position)

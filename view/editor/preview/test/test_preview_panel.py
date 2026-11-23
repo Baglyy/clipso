@@ -1,5 +1,6 @@
 import pytest
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QImage
 
 from view.editor.preview.preview_panel import FPS, PreviewPanel
 from view.editor.preview.video_view import VideoView
@@ -95,8 +96,13 @@ def test_set_time(panel):
     assert panel.timecodeLabel.text() == "00:01:05:15 / 00:02:00:00"
 
 
-def test_show_frame_forwarded_to_video_view(panel):
-    panel.show_frame(color="#468A57", source="plage.mp4", text="Salut", logo=False)
-    assert panel.videoView._source == "plage.mp4"
-    assert panel.videoView._text == "Salut"
-    assert not panel.videoView._logo
+def test_set_format_updates_label_and_aspect(panel):
+    panel.set_format("9:16", 720, 25)
+    assert panel.previewInfoLabel.text() == "9:16 · 720p · 25 ips"
+    assert panel.videoView.aspect == pytest.approx(9 / 16)
+
+
+def test_show_image_forwarded_to_video_view(panel):
+    image = QImage(16, 9, QImage.Format.Format_RGB888)
+    panel.show_image(image)
+    assert panel.videoView._image is image

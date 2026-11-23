@@ -1,7 +1,8 @@
 import pytest
 from PyQt6.QtCore import QRectF
+from PyQt6.QtGui import QColor, QImage
 
-from view.editor.preview.video_view import ASPECT, VideoView
+from view.editor.preview.video_view import DEFAULT_ASPECT, VideoView
 
 
 @pytest.fixture
@@ -27,35 +28,46 @@ def test_frame_rect_keeps_16_9_centered(view, width, height, expected):
     view.resize(width, height)
     frame = view.frame_rect()
     assert frame == expected
-    assert frame.width() / frame.height() == pytest.approx(ASPECT)
-
-
-def test_show_frame_stores_layers(view):
-    view.show_frame(color="#468A57", source="plage.mp4", text="Salut", logo=True, logo_selected=False)
-    assert view._color == "#468A57"
-    assert view._source == "plage.mp4"
-    assert view._text == "Salut"
-    assert view._logo
-    assert not view._logo_selected
-
-
-def test_show_frame_defaults(view):
-    view.show_frame(color="#468A57", source="plage.mp4")
-    assert view._text == ""
-    assert not view._logo
-    assert not view._logo_selected
+    assert frame.width() / frame.height() == pytest.approx(DEFAULT_ASPECT)
 
 
 @pytest.mark.parametrize(
-    "layers",
+    ("aspect", "expected"), [(9 / 16, QRectF(219.0625, 0, 151.875, 270)), (1, QRectF(160, 0, 270, 270))]
+)
+def test_frame_rect_follows_project_aspect(view, aspect, expected):
+    view.resize(590, 270)
+    view.set_aspect(aspect)
+    assert view.frame_rect() == expected
+
+
+def test_show_image_and_selection_are_stored(view):
+    image = QImage(16, 9, QImage.Format.Format_RGB888)
+    view.show_image(image)
+    view.set_selection(QRectF(0.1, 0.1, 0.2, 0.2))
+    assert view._image is image
+    assert view._selection == QRectF(0.1, 0.1, 0.2, 0.2)
+
+
+def test_image_is_drawn_in_frame(qtbot, view):
+    view.resize(640, 360)
+    image = QImage(64, 36, QImage.Format.Format_RGB888)
+    image.fill(QColor("red"))
+    view.show_image(image)
+    screenshot = view.grab().toImage()
+    assert screenshot.pixelColor(320, 180) == QColor("red")
+
+
+@pytest.mark.parametrize(
+    ("image", "selection"),
     [
-        {"color": "#AE7657", "source": "plage.mp4", "text": "Titre", "logo": True, "logo_selected": True},
-        {"color": "#AE7657", "source": "plage.mp4", "logo": True, "logo_selected": False},
-        {"color": "", "source": ""},  # aucune image : fond uni
+        (QImage(16, 9, QImage.Format.Format_RGB888), QRectF(0.4, 0.4, 0.2, 0.2)),
+        (QImage(16, 9, QImage.Format.Format_RGB888), None),
+        (None, None),  # pas encore d'image : fond uni
     ],
 )
-def test_paint_event_does_not_crash(qtbot, view, layers):
+def test_paint_event_does_not_crash(qtbot, view, image, selection):
     view.show()
     qtbot.waitExposed(view)
-    view.show_frame(**layers)
+    view.show_image(image)
+    view.set_selection(selection)
     view.repaint()
