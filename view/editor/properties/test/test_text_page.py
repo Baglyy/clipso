@@ -46,3 +46,33 @@ def test_align_buttons_have_icon_and_hand_cursor(page):
     for button in (page.alignLeftButton, page.alignCenterButton, page.alignRightButton):
         assert not button.icon().isNull(), button.objectName()
         assert button.cursor().shape() == Qt.CursorShape.PointingHandCursor, button.objectName()
+
+
+TEXT_VALUES = {
+    "text": "Bonjour",
+    "font": "Nunito",
+    "size": 120,
+    "color": "#F2C24B",
+    "align": "left",
+    "animation": "zoom",
+}
+
+
+def test_set_values_then_values(page):
+    page.set_values(TEXT_VALUES)
+    assert page.values() == TEXT_VALUES
+
+
+def test_set_values_does_not_emit_changed(page, qtbot):
+    with qtbot.assertNotEmitted(page.changed):
+        page.set_values(TEXT_VALUES)
+
+
+def test_user_changes_emit_changed(page, qtbot):
+    with qtbot.waitSignal(page.changed):
+        page.textSizeSlider.setValue(30)
+    with qtbot.waitSignal(page.changed):
+        qtbot.mouseClick(page.alignRightButton, Qt.MouseButton.LeftButton)
+    with qtbot.waitSignal(page.changed):
+        qtbot.keyClicks(page.textContentEdit, "a")
+    assert page.values()["align"] == "right"

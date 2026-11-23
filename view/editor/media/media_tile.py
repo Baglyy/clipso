@@ -1,11 +1,13 @@
 """Vignette d'un média dans le panneau Médias."""
 
-from PyQt6.QtCore import QRectF, Qt
-from PyQt6.QtGui import QColor, QFont, QPainter
-from PyQt6.QtWidgets import QFrame, QLabel, QSizePolicy, QVBoxLayout, QWidget
+from PyQt6.QtCore import QMimeData, QRectF, Qt, pyqtSignal
+from PyQt6.QtGui import QColor, QDrag, QFont, QPainter
+from PyQt6.QtWidgets import QApplication, QFrame, QLabel, QSizePolicy, QVBoxLayout, QWidget
 
-from view.painting import draw_stripes, draw_waveform
+from view.painting import draw_image, draw_stripes, draw_waveform
 from view.theme import CLIP_COLORS, KIND_ICONS, WHITE, icon
+
+MEDIA_MIME_TYPE = "application/x-clipso-media"
 
 
 class MediaThumbnail(QWidget):
@@ -21,13 +23,15 @@ class MediaThumbnail(QWidget):
         rect = QRectF(self.rect())
         kind = self.media["kind"]
 
-        # TODO: forme d'onde aléatoire et rayures à la place de la vraie miniature
         if kind == "audio":
             background, _, accent = CLIP_COLORS["audio"]
             painter.setPen(Qt.PenStyle.NoPen)
             painter.setBrush(QColor(background))
             painter.drawRoundedRect(rect, 9, 9)
-            draw_waveform(painter, rect.adjusted(10, 20, -10, -18), QColor(accent), 18, seed=len(self.media["name"]))
+            peaks = self.media.get("peaks")
+            draw_waveform(painter, rect.adjusted(10, 20, -10, -18), QColor(accent), 18, len(self.media["name"]), peaks)
+        elif self.media.get("thumbnail") is not None:
+            draw_image(painter, rect, self.media["thumbnail"], 9)
         else:
             draw_stripes(painter, rect, QColor(self.media["color"]), 9)
 
@@ -57,9 +61,12 @@ class MediaThumbnail(QWidget):
 
 
 class MediaTile(QFrame):
+    activated = pyqtSignal(int)  # index du média
+
     def __init__(self, media: dict):
         super().__init__()
         self.media = media
+        self._press_position = None
         self.setObjectName("mediaTile")
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setToolTip(media["name"])
@@ -71,3 +78,26 @@ class MediaTile(QFrame):
         name = QLabel(media["name"])
         name.setObjectName("mediaName")
         layout.addWidget(name)
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            self._press_position = event.position()
+
+    def mouseMoveEvent(self, event):
+        if self._press_position is None:
+            return
+        if (event.position() - self._press_position).manhattanLength() < QApplication.startDragDistance():
+            return
+        self._press_position = None
+        drag = QDrag(self)
+        mime = QMimeData()
+        mime.setData(MEDIA_MIME_TYPE, str(self.media["index"]).encode())
+        drag.setMimeData(mime)
+        drag.setPixmap(self.grab().scaledToWidth(90, Qt.TransformationMode.SmoothTransformation))
+        drag.exec(Qt.DropAction.CopyAction)
+
+    def mouseReleaseEvent(self, event):
+        self._press_position = None
+
+    def mouseDoubleClickEvent(self, event):
+        self.activated.emit(self.media["index"])

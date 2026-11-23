@@ -23,7 +23,9 @@ known-first-party = ["view", "model", "controller"]
 testpaths = ["view", "model", "controller"]
 pythonpath = ["."]
 addopts = "--cov --cov-report=term-missing:skip-covered"
+# moviepy utilise une syntaxe NumPy dépréciée, ce n'est pas notre code
+filterwarnings = ["ignore::DeprecationWarning:moviepy.*"]
 
 [tool.coverage.run]
 source = ["view", "model", "controller"]
-omit = ["view/demo_data.py", "*/test_*.py"]
+omit = ["*/test_*.py"]

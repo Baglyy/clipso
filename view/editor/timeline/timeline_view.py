@@ -1,9 +1,10 @@
 """Timeline : règle des temps, pistes, clips et tête de lecture."""
 
 from PyQt6.QtCore import QPointF, QRectF, Qt, pyqtSignal
-from PyQt6.QtGui import QColor, QFont, QFontMetrics, QPainter, QPainterPath, QPen
+from PyQt6.QtGui import QColor, QFont, QFontMetrics, QImage, QPainter, QPainterPath, QPen
 from PyQt6.QtWidgets import QSizePolicy, QWidget
 
+from view.editor.media.media_tile import MEDIA_MIME_TYPE
 from view.format import mm_ss, seconds_text
 from view.painting import draw_waveform
 from view.theme import CLIP_COLORS, GREEN, INK, KIND_ICONS, MUTED, ROW, WHITE, icon, mix
@@ -25,6 +26,7 @@ class TimelineView(QWidget):
     position_changed = pyqtSignal(float)
     clip_selected = pyqtSignal(dict, dict)
     content_width_changed = pyqtSignal(int)
+    media_dropped = pyqtSignal(int, int, float)  # média, piste, secondes
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -38,6 +40,8 @@ class TimelineView(QWidget):
         self.zoom = 1.0
         self.offset = 0
         self._dragging_playhead = False
+        self._drop_track = None
+        self.setAcceptDrops(True)
 
     def set_tracks(self, tracks: list[dict], duration: float):
         self.tracks, self.duration = tracks, duration
@@ -121,6 +125,40 @@ class TimelineView(QWidget):
     def mouseReleaseEvent(self, event):
         self._dragging_playhead = False
 
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasFormat(MEDIA_MIME_TYPE):
+            event.acceptProposedAction()
+
+    def dragMoveEvent(self, event):
+        index = self._track_index_at(event.position().y())
+        if index != self._drop_track:
+            self._drop_track = index
+            self.update()
+        if index is None:
+            event.ignore()
+        else:
+            event.acceptProposedAction()
+
+    def dragLeaveEvent(self, event):
+        self._drop_track = None
+        self.update()
+
+    def dropEvent(self, event):
+        self._drop_track = None
+        self.update()
+        index = self._track_index_at(event.position().y())
+        if index is None:
+            return
+        media_index = int(bytes(event.mimeData().data(MEDIA_MIME_TYPE)).decode())
+        event.acceptProposedAction()
+        self.media_dropped.emit(media_index, index, max(0.0, self.seconds_for(event.position().x())))
+
+    def _track_index_at(self, y: float) -> int | None:
+        for index, (_, row) in enumerate(self.track_rects()):
+            if row.top() <= y <= row.bottom():
+                return index
+        return None
+
     def resizeEvent(self, event):
         self.content_width_changed.emit(self.content_width())
 
@@ -132,8 +170,8 @@ class TimelineView(QWidget):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         self._paint_ruler(painter)
-        for track, row in self.track_rects():
-            painter.setPen(Qt.PenStyle.NoPen)
+        for index, (track, row) in enumerate(self.track_rects()):
+            painter.setPen(QPen(QColor(GREEN), 2) if index == self._drop_track else Qt.PenStyle.NoPen)
             painter.setBrush(QColor(ROW))
             painter.drawRoundedRect(row, 10, 10)
             painter.save()
@@ -208,11 +246,12 @@ class TimelineView(QWidget):
         kind = clip["kind"]
         body = QRectF(rect.left() + 4, rect.top() + 21, rect.width() - 8, rect.height() - 25)
         if kind == "video":
-            self._paint_frames(painter, body, QColor(clip["color"]))
+            self._paint_frames(painter, body, QColor(clip["color"]), clip.get("thumbnail"))
         elif kind == "audio":
             bars = max(8, int(body.width() / 5))
             accent = QColor(CLIP_COLORS["audio"][2])
-            draw_waveform(painter, body.adjusted(4, 2, -4, -2), accent, bars, seed=len(clip["name"]))
+            peaks = clip.get("peaks")
+            draw_waveform(painter, body.adjusted(4, 2, -4, -2), accent, bars, len(clip["name"]), peaks)
         elif kind == "text":
             italic = QFont("Nunito", 8)
             italic.setItalic(True)
@@ -224,12 +263,20 @@ class TimelineView(QWidget):
                 f"« {clip.get('text', '')} »",
             )
 
-    def _paint_frames(self, painter: QPainter, body: QRectF, color: QColor):
+    def _paint_frames(self, painter: QPainter, body: QRectF, color: QColor, thumbnail: QImage | None = None):
         path = QPainterPath()
         path.addRoundedRect(body, 5, 5)
         painter.save()
         painter.setClipPath(path, Qt.ClipOperation.IntersectClip)
         painter.fillRect(body, color)
+        if thumbnail is not None and body.height() > 0:
+            frame = thumbnail.scaledToHeight(int(body.height()), Qt.TransformationMode.SmoothTransformation)
+            x = body.left()
+            while x < body.right():
+                painter.drawImage(QPointF(x, body.top()), frame)
+                x += max(frame.width(), 1)
+            painter.restore()
+            return
         painter.setPen(QPen(QColor(255, 255, 255, 110), 1.5))
         x = body.left() + 44
         while x < body.right():

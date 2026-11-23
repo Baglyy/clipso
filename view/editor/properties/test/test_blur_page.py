@@ -26,3 +26,19 @@ def test_only_one_blur_type_checked(qtbot, page):
     assert page.blurRadialButton.isChecked()
     assert not page.blurGaussianButton.isChecked()
     assert not page.blurMotionButton.isChecked()
+
+
+BLUR_VALUES = {"kind": "motion", "intensity": 70, "feather": 10, "background": True}
+
+
+def test_set_values_then_values(page, qtbot):
+    with qtbot.assertNotEmitted(page.changed):
+        page.set_values(BLUR_VALUES)
+    assert page.values() == BLUR_VALUES
+
+
+def test_user_changes_emit_changed(page, qtbot):
+    with qtbot.waitSignal(page.changed):
+        page.blurIntensitySlider.setValue(50)
+    with qtbot.waitSignal(page.changed):
+        qtbot.mouseClick(page.blurBackgroundToggle, Qt.MouseButton.LeftButton)

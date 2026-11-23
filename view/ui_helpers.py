@@ -24,3 +24,17 @@ def bind_value_label(slider: QSlider, label: QLabel, fmt: Callable[[int], str]):
     """Affiche la valeur du curseur dans le label, mise en forme par fmt."""
     slider.valueChanged.connect(lambda value: label.setText(fmt(value)))
     clickable(slider)
+
+
+def checked_value(buttons: dict):
+    """Valeur du bouton coché dans un groupe {bouton: valeur}."""
+    for button, value in buttons.items():
+        if button.isChecked():
+            return value
+    return None
+
+
+def check_value(buttons: dict, value):
+    for button, button_value in buttons.items():
+        if button_value == value:
+            button.setChecked(True)

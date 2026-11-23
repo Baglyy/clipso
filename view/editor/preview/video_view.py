@@ -16,12 +16,11 @@ class VideoView(QWidget):
         super().__init__(parent)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.setMinimumSize(320, 180)
-        # TODO: image initiale de démo (coucher_soleil.mp4 + logo), à retirer
-        self._color = "#AE7657"
-        self._source = "coucher_soleil.mp4"
+        self._color = ""
+        self._source = ""
         self._text = ""
-        self._logo = True
-        self._logo_selected = True
+        self._logo = False
+        self._logo_selected = False
 
     def show_frame(self, color: str, source: str, text: str = "", logo: bool = False, logo_selected: bool = False):
         self._color, self._source, self._text = color, source, text

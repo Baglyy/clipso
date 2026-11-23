@@ -130,3 +130,34 @@ def test_tile_render_does_not_crash(media_tile, qtbot):
     media_tile.show()
     qtbot.waitExposed(media_tile)
     media_tile.repaint()
+
+
+def test_double_click_emits_index(qtbot, video_media):
+    video_media["index"] = 3
+    tile = MediaTile(video_media)
+    qtbot.addWidget(tile)
+    with qtbot.waitSignal(tile.activated) as blocker:
+        qtbot.mouseDClick(tile, Qt.MouseButton.LeftButton)
+    assert blocker.args == [3]
+
+
+def test_thumbnail_image_is_drawn(qtbot, video_media):
+    from PyQt6.QtGui import QColor, QImage
+
+    image = QImage(32, 18, QImage.Format.Format_RGB888)
+    image.fill(QColor("#FF0000"))
+    video_media["thumbnail"] = image
+    thumbnail = MediaThumbnail(video_media)
+    qtbot.addWidget(thumbnail)
+    thumbnail.resize(120, 66)
+    drawn = thumbnail.grab().toImage()
+    assert drawn.pixelColor(60, 45).red() > 200
+    assert drawn.pixelColor(60, 45).green() < 50
+
+
+def test_audio_peaks_are_drawn(qtbot, audio_media):
+    audio_media["peaks"] = [0.0] * 50 + [1.0] * 50
+    thumbnail = MediaThumbnail(audio_media)
+    qtbot.addWidget(thumbnail)
+    thumbnail.resize(120, 66)
+    thumbnail.grab()

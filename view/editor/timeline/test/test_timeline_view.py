@@ -232,3 +232,43 @@ def test_paint_event_does_not_crash(timeline, sample_tracks, qtbot):
     # Rendu avec tête de lecture au milieu
     timeline.set_position(4.0)
     timeline.repaint()
+
+
+def drop(timeline, x, y, media_index=1):
+    from PyQt6.QtCore import QMimeData, QPointF
+    from PyQt6.QtGui import QDropEvent
+
+    from view.editor.media.media_tile import MEDIA_MIME_TYPE
+
+    mime = QMimeData()
+    mime.setData(MEDIA_MIME_TYPE, str(media_index).encode())
+    event = QDropEvent(
+        QPointF(x, y), Qt.DropAction.CopyAction, mime, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier
+    )
+    timeline.dropEvent(event)
+
+
+def test_drop_media_on_track(timeline, qtbot):
+    rows = [row for _, row in timeline.track_rects()]
+    x = timeline.x_for(3.0)
+    with qtbot.waitSignal(timeline.media_dropped) as blocker:
+        drop(timeline, x, rows[1].center().y(), media_index=4)
+    media_index, track_index, seconds = blocker.args
+    assert (media_index, track_index) == (4, 1)
+    assert seconds == pytest.approx(3.0, abs=0.1)
+
+
+def test_drop_outside_tracks_is_ignored(timeline, qtbot):
+    with qtbot.assertNotEmitted(timeline.media_dropped):
+        drop(timeline, 50, 2)
+
+
+def test_paint_thumbnails_and_peaks(timeline):
+    from PyQt6.QtGui import QImage
+
+    for track in timeline.tracks:
+        for clip in track["clips"]:
+            clip["thumbnail"] = QImage(16, 9, QImage.Format.Format_RGB888)
+            clip["peaks"] = [0.5, 1.0, 0.2]
+    timeline.repaint()
+    timeline.grab()

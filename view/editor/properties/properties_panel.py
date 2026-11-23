@@ -6,7 +6,7 @@ Chaque onglet est une page à part (text_page, image_page, filters_page, blur_pa
 from pathlib import Path
 
 from PyQt6 import uic
-from PyQt6.QtCore import QSize, Qt
+from PyQt6.QtCore import QSize, Qt, pyqtSignal
 from PyQt6.QtWidgets import QWidget
 
 from view.format import mm_ss, seconds_text
@@ -57,6 +57,8 @@ EMPTY_STATES = {
 
 
 class PropertiesPanel(QWidget):
+    settings_changed = pyqtSignal(str, dict)  # onglet, valeurs
+
     def __init__(self, parent=None):
         super().__init__(parent)
         uic.loadUi(Path(__file__).parent / "properties_panel.ui", self)
@@ -76,6 +78,20 @@ class PropertiesPanel(QWidget):
             button.setIconSize(QSize(18, 18))
             clickable(button)
             button.toggled.connect(lambda checked, t=tab: self._on_tab_toggled(t, checked))
+
+        self.pages = {
+            "text": self.textPage,
+            "image": self.imagePage,
+            "filters": self.filtersPage,
+            "blur": self.blurPage,
+            "audio": self.audioPage,
+        }
+        for tab, page in self.pages.items():
+            page.changed.connect(lambda t=tab: self.settings_changed.emit(t, self.pages[t].values()))
+
+    def set_values(self, values: dict):
+        for tab, tab_values in values.items():
+            self.pages[tab].set_values(tab_values)
 
     def _on_tab_toggled(self, tab: str, checked: bool):
         if checked:

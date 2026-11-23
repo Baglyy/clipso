@@ -30,6 +30,8 @@ class TrackHeader(QFrame):
             "Couper la piste" if is_audio else "Masquer la piste",
         )
         self.lock_button = self._make_button("lock-simple-open", "lock-simple", "Verrouiller la piste")
+        self.visibility_button.setChecked(track.get("hidden", False))
+        self.lock_button.setChecked(track.get("locked", False))
         layout.addWidget(self.visibility_button)
         layout.addWidget(self.lock_button)
 

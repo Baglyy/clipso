@@ -1,6 +1,6 @@
 import pytest
 
-from view.format import mm_ss, percent, seconds_text, signed, timecode
+from view.format import file_size, mm_ss, percent, seconds_text, signed, timecode
 
 
 @pytest.mark.parametrize(
@@ -41,3 +41,11 @@ def test_percent():
 @pytest.mark.parametrize(("value", "expected"), [(12, "+12"), (-5, "-5"), (0, "0")])
 def test_signed(value, expected):
     assert signed(value) == expected
+
+
+@pytest.mark.parametrize(
+    ("size", "expected"),
+    [(200, "1 Ko"), (850_000, "850 Ko"), (65_400_000, "65 Mo"), (1_240_000_000, "1,2 Go")],
+)
+def test_file_size(size, expected):
+    assert file_size(size) == expected

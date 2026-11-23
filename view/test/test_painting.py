@@ -37,3 +37,32 @@ def test_draw_stripes_restores_painter():
     assert painter.brush() == brush_before
     assert not painter.hasClipping()
     painter.end()
+
+
+def test_waveform_with_peaks():
+    from view.painting import _resample, draw_waveform
+
+    assert _resample([0.1, 0.9, 0.2, 0.3], 2) == [0.9, 0.3]
+    assert _resample([0.5], 3) == [0.5, 0.5, 0.5]
+    image = QImage(40, 20, QImage.Format.Format_ARGB32)
+    image.fill(0)
+    painter = QPainter(image)
+    draw_waveform(painter, QRectF(0, 0, 40, 20), QColor("#000000"), 4, peaks=[0.0, 0.0, 1.0, 1.0])
+    painter.end()
+    # la barre du début (silence) est plus petite que celle de la fin
+    assert image.pixelColor(4, 2).alpha() == 0
+    assert image.pixelColor(34, 2).alpha() > 0
+
+
+def test_draw_image_fills_rect():
+    from view.painting import draw_image
+
+    source = QImage(10, 10, QImage.Format.Format_RGB888)
+    source.fill(QColor("#0000FF"))
+    image = QImage(40, 20, QImage.Format.Format_ARGB32)
+    image.fill(0)
+    painter = QPainter(image)
+    draw_image(painter, QRectF(0, 0, 40, 20), source, 0)
+    painter.end()
+    assert image.pixelColor(20, 10).blue() == 255
+    assert image.pixelColor(1, 1).blue() == 255
