@@ -248,3 +248,24 @@ def test_paint_event_does_not_crash(loaded_page, qtbot):
     qtbot.waitExposed(loaded_page)
     # update() au lieu de repaint() pour respecter le pipeline OpenGL de previewPanel
     loaded_page.update()
+
+
+def test_jump_during_playback_restarts_sound(loaded_page):
+    started, stopped = [], []
+    loaded_page.playback_started.connect(started.append)
+    loaded_page.playback_stopped.connect(lambda: stopped.append(True))
+    loaded_page.previewPanel.jump_requested.emit("start")
+    assert started == []
+
+    loaded_page.previewPanel.toggle_play()
+    loaded_page.previewPanel.step_requested.emit(1.0)
+    assert started == [0.0, 1.0]
+    loaded_page.home_requested.emit()
+    assert stopped == [True]
+    assert not loaded_page.playback_timer.isActive()
+
+
+def test_playhead_follows_clock(loaded_page):
+    loaded_page.playback_clock = lambda: 1.25
+    loaded_page.playback_timer.timeout.emit()
+    assert loaded_page.timeline.position == 1.25

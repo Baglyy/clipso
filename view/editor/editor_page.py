@@ -18,12 +18,17 @@ class EditorPage(QWidget):
     home_requested = pyqtSignal()
     export_requested = pyqtSignal()
     position_shown = pyqtSignal(float)
+    # aussi émis quand on saute ailleurs pendant la lecture
+    playback_started = pyqtSignal(float)
+    playback_stopped = pyqtSignal()
 
     def __init__(self):
         super().__init__()
         uic.loadUi(Path(__file__).parent / "editor_page.ui", self)
         self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground)
         self.duration = 0.0
+        # fonction qui donne la position de lecture (fournie par le controller)
+        self.playback_clock = None
 
         # TODO: projectSavedLabel (« enregistré il y a 1 min ») est figé dans editor_page.ui
         self._setup_top_bar()
@@ -34,13 +39,13 @@ class EditorPage(QWidget):
 
         self.playback_timer = QTimer(self)
         self.playback_timer.setInterval(1000 // FPS)
-        self.playback_timer.timeout.connect(lambda: self.seek(self.timeline.position + 1 / FPS))
+        self.playback_timer.timeout.connect(self._advance)
 
         QShortcut(QKeySequence(Qt.Key.Key_Space), self, self.previewPanel.toggle_play)
         self.previewPanel.play_toggled.connect(self._set_playing)
-        self.previewPanel.step_requested.connect(lambda step: self.seek(self.timeline.position + step))
-        self.previewPanel.jump_requested.connect(lambda where: self.seek(0 if where == "start" else self.duration))
-        self.timeline.position_changed.connect(self._show_position)
+        self.previewPanel.step_requested.connect(lambda step: self._jump(self.timeline.position + step))
+        self.previewPanel.jump_requested.connect(lambda where: self._jump(0 if where == "start" else self.duration))
+        self.timeline.position_changed.connect(self._on_scrub)
         self.timeline.clip_selected.connect(self._on_clip_selected)
 
     @property
@@ -52,6 +57,7 @@ class EditorPage(QWidget):
         self.logoButton.setIconSize(QSize(34, 34))
         clickable(self.logoButton)
         self.logoButton.clicked.connect(self.home_requested)
+        self.home_requested.connect(self.pause)
 
         self.projectIconLabel.setPixmap(icon("film-strip").pixmap(18, 18))
         self.renameProjectButton.setIcon(icon("pencil-simple"))
@@ -129,16 +135,40 @@ class EditorPage(QWidget):
         self.timeline.set_position(seconds)
         self._show_position(self.timeline.position)
         if self.timeline.position >= self.duration and self.previewPanel.playing:
+            self.pause()
+
+    def pause(self):
+        if self.previewPanel.playing:
             self.previewPanel.set_playing(False)
             self._set_playing(False)
+
+    def _advance(self):
+        if self.playback_clock is not None:
+            self.seek(self.playback_clock())
+        else:
+            self.seek(self.timeline.position + 1 / FPS)
+
+    def _jump(self, seconds: float):
+        self.seek(seconds)
+        self._restart_playback()
+
+    def _on_scrub(self, seconds: float):
+        self._show_position(seconds)
+        self._restart_playback()
+
+    def _restart_playback(self):
+        if self.playback_timer.isActive():
+            self.playback_started.emit(self.timeline.position)
 
     def _set_playing(self, playing: bool):
         if not playing:
             self.playback_timer.stop()
+            self.playback_stopped.emit()
             return
         if self.timeline.position >= self.duration:
             self.seek(0)
         self.playback_timer.start()
+        self.playback_started.emit(self.timeline.position)
 
     def _show_position(self, seconds: float):
         self.previewPanel.set_time(seconds, self.duration)
