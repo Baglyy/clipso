@@ -355,3 +355,19 @@ def test_selection_box_only_for_visible_image(controller, window, media_files, q
     # un clip image dure 5 s
     editor.seek(10)
     assert view._selection is None
+
+
+def test_playback_controls_sound(controller, window, media_files, qtbot, monkeypatch):
+    monkeypatch.setattr("controller.audio_player.create_sink", lambda: None)
+    controller.new_project()
+    import_files(controller, qtbot, [media_files["video"]])
+    controller.place_media(0)
+    panel = window.editor_page.previewPanel
+    panel.volumeButton.click()
+    assert controller.audio_player.muted
+
+    panel.toggle_play()
+    assert controller.audio_player.playing
+    # arrivé à la fin du montage, tout s'arrête
+    qtbot.waitUntil(lambda: not panel.playing, timeout=10_000)
+    assert not controller.audio_player.playing

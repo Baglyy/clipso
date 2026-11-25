@@ -7,6 +7,7 @@ from PyQt6.QtCore import QRectF, QStandardPaths, Qt, QTimer
 from PyQt6.QtGui import QImage
 from PyQt6.QtWidgets import QFileDialog, QMessageBox, QProgressDialog
 
+from controller.audio_player import AudioPlayer
 from controller.workers import EstimateWorker, ExportWorker, ImportWorker, PreviewWorker
 from model.export import ExportSettings, image_box, preview_frame
 from model.media import AUDIO_EXTENSIONS, IMAGE_EXTENSIONS, VIDEO_EXTENSIONS
@@ -38,6 +39,7 @@ class AppController:
         self.preview_worker = PreviewWorker()
         self.preview_worker.frame_ready.connect(self.show_preview_frame)
         self.preview_worker.start()
+        self.audio_player = AudioPlayer()
 
         home = window.home_page
         self.aspect_buttons = {
@@ -58,13 +60,20 @@ class AppController:
         self.editor.propertiesPanel.settings_changed.connect(self.change_settings)
         self.editor.export_requested.connect(self.show_export)
         self.editor.position_shown.connect(self.request_preview)
+        self.editor.playback_clock = self.audio_player.position
+        self.editor.playback_started.connect(self.audio_player.play)
+        self.editor.playback_stopped.connect(self.audio_player.pause)
+        self.editor.previewPanel.volumeButton.toggled.connect(self.audio_player.set_muted)
 
     def close(self):
+        self.editor.pause()
+        self.audio_player.close()
         self.preview_worker.stop()
 
     # Projet
 
     def new_project(self):
+        self.editor.pause()
         aspect = "16:9"
         for button, value in self.aspect_buttons.items():
             if button.isChecked():
@@ -124,6 +133,7 @@ class AppController:
 
         # avant load_project, qui demande l'image courante : sinon elle serait calculée avec l'ancien projet
         self.preview_worker.rebuild(project)
+        self.audio_player.set_project(project)
         self.editor.load_project(project.name, media_list, tracks, project.duration, self.editor.timeline.position)
         self.editor.previewPanel.set_format(project.aspect, project.resolution, project.fps)
         if selected_view_clip:
@@ -239,6 +249,7 @@ class AppController:
 
     def update_preview(self):
         self.preview_worker.rebuild(self.project)
+        self.audio_player.set_project(self.project)
         self.request_preview(self.editor.timeline.position)
 
     def request_preview(self, seconds: float):
@@ -263,6 +274,7 @@ class AppController:
     # Export
 
     def show_export(self):
+        self.editor.pause()
         project = self.project
         if project.duration == 0:
             QMessageBox.information(self.window, "Export", "Le projet est vide : importez des médias avant d'exporter.")
