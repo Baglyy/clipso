@@ -25,6 +25,9 @@ class BlurPage(QWidget):
             self.blurRadialButton: "radial",
         }
 
+        self.blurFeatherSlider.setEnabled(False)
+        self.blurBackgroundToggle.toggled.connect(self.blurFeatherSlider.setEnabled)
+
         self.blurIntensitySlider.valueChanged.connect(self.changed)
         self.blurFeatherSlider.valueChanged.connect(self.changed)
         self.blurBackgroundToggle.clicked.connect(self.changed)

@@ -187,6 +187,43 @@ def test_text_changes_update_timeline(controller, window, qtbot):
     assert editor.timeline.tracks[0]["clips"][0]["name"] == "Titre « Fin »"
 
 
+def test_add_text_from_timeline(controller, window, media_files, qtbot):
+    controller.new_project()
+    import_files(controller, qtbot, [media_files["video"]])
+    controller.place_media(0)
+    editor = window.editor_page
+    editor.seek(0.5)
+    editor.timelinePanel.addTextButton.click()
+
+    text = controller.project.tracks[0].clips[0]
+    assert text.start == 0.5
+    assert controller.selected_clip is text
+    assert view_clips(window)["text"] == ["Titre « Votre texte »"]
+    page = editor.propertiesPanel.textPage
+    assert editor.propertiesPanel.propertyStack.currentWidget() is page
+    assert page.textContentEdit.selectedText() == "Votre texte"
+
+    qtbot.keyClicks(page.textContentEdit, "Fin")
+    assert text.text == "Fin"
+
+
+def test_add_text_from_properties(controller, window, qtbot):
+    controller.new_project()
+    panel = window.editor_page.propertiesPanel
+    panel.textTabButton.click()
+    panel.emptyActionButton.click()
+    assert len(controller.project.tracks[0].clips) == 1
+
+
+def test_add_text_on_locked_track(controller, window, messages):
+    controller.new_project()
+    controller.add_text()
+    controller.project.tracks[0].locked = True
+    controller.add_text()
+    assert len(controller.project.tracks[0].clips) == 1
+    assert "verrouillée" in messages[0][1]
+
+
 def test_settings_without_selection_are_ignored(controller):
     controller.change_settings("audio", {"volume": 10})
     assert controller.selected_clip is None

@@ -8,6 +8,7 @@ from model.settings import AudioSettings, Blur, Filters, ImageSettings, TextStyl
 
 ASPECTS = {"16:9": (16, 9), "9:16": (9, 16), "1:1": (1, 1)}
 IMAGE_DURATION = 5.0
+TEXT_DURATION = 5.0
 # pistes acceptées pour chaque type de média, la première est celle par défaut
 TRACKS_FOR_MEDIA = {"video": ("video", "overlay"), "image": ("overlay", "video"), "audio": ("audio",)}
 
@@ -41,7 +42,7 @@ class Clip:
 @dataclass
 class Track:
     name: str
-    kind: str  # "overlay", "video" ou "audio"
+    kind: str  # "text", "overlay", "video" ou "audio"
     clips: list[Clip] = field(default_factory=list)
     hidden: bool = False
     locked: bool = False
@@ -105,6 +106,17 @@ class Project:
         duration = media.duration or IMAGE_DURATION
         start = track.end if start is None else max(0.0, start)
         clip = Clip(track.free_start(start, duration), duration, media)
+        track.clips.append(clip)
+        return clip
+
+    def add_text(self, start: float, text: str = "Votre texte") -> Clip:
+        track = next((track for track in self.tracks if track.kind == "text"), None)
+        if track is None:
+            track = Track("Texte", "text")
+            self.tracks.insert(0, track)
+        if track.locked:
+            raise ValueError(f"La piste {track.name} est verrouillée.")
+        clip = Clip(track.free_start(start, TEXT_DURATION), TEXT_DURATION, text=text)
         track.clips.append(clip)
         return clip
 

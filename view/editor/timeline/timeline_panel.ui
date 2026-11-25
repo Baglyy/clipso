@@ -119,6 +119,28 @@
          <number>3</number>
         </property>
         <item>
+         <widget class="QToolButton" name="addTextButton">
+          <property name="text">
+           <string>Texte</string>
+          </property>
+          <property name="toolTip">
+           <string>Ajouter un texte au curseur</string>
+          </property>
+          <property name="role" stdset="0">
+           <string>toolText</string>
+          </property>
+          <property name="toolButtonStyle">
+           <enum>Qt::ToolButtonTextBesideIcon</enum>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>34</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QToolButton" name="cutButton">
           <property name="text">
            <string>Couper</string>

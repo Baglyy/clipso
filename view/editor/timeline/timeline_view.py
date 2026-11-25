@@ -11,7 +11,7 @@ from view.theme import CLIP_COLORS, GREEN, INK, KIND_ICONS, MUTED, ROW, WHITE, i
 
 RULER_HEIGHT = 28
 TRACK_GAP = 7
-TRACK_HEIGHTS = {"overlay": 42, "video": 62, "audio": 42}
+TRACK_HEIGHTS = {"text": 42, "overlay": 42, "video": 62, "audio": 42}
 LEFT_MARGIN = 4
 SIDE_MARGINS = 12
 # intervalles possibles entre deux graduations de la règle, en secondes
@@ -45,6 +45,8 @@ class TimelineView(QWidget):
 
     def set_tracks(self, tracks: list[dict], duration: float):
         self.tracks, self.duration = tracks, duration
+        height = RULER_HEIGHT + sum(TRACK_GAP + TRACK_HEIGHTS[track["kind"]] for track in tracks)
+        self.setMinimumHeight(height)
         self.content_width_changed.emit(self.content_width())
         self.update()
 
