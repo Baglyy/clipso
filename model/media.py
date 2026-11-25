@@ -8,6 +8,7 @@ import cv2
 import imageio_ffmpeg
 import numpy as np
 from moviepy import AudioFileClip, VideoFileClip
+from moviepy.audio.io.readers import FFMPEG_AudioReader
 from PIL import Image
 
 VIDEO_EXTENSIONS = {".mp4", ".mov", ".webm", ".mkv", ".avi"}
@@ -16,6 +17,9 @@ IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".bmp"}
 THUMBNAIL_HEIGHT = 120
 PEAKS = 400  # nombre de barres de la forme d'onde
 PEAKS_SAMPLE_RATE = 4000
+
+# bug de moviepy : si le fichier est illisible, __del__ lit proc alors que __init__ ne l'a pas encore défini
+FFMPEG_AudioReader.proc = None
 
 
 @dataclass
