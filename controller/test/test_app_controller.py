@@ -1,5 +1,6 @@
 import pytest
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QColor
 from PyQt6.QtWidgets import QFileDialog, QMessageBox, QProgressDialog
 
 from controller.app_controller import AppController, clip_peaks, to_qimage
@@ -19,7 +20,9 @@ def window(qtbot):
 
 @pytest.fixture
 def controller(window):
-    return AppController(window)
+    app_controller = AppController(window)
+    yield app_controller
+    app_controller.close()
 
 
 @pytest.fixture
@@ -324,3 +327,67 @@ def test_clip_peaks_follow_clip(tmp_path):
     media = Media(tmp_path / "son.wav", "audio", 10, peaks=[float(i) for i in range(100)])
     clip = Clip(0, 5, media, in_point=2)
     assert clip_peaks(clip) == [float(i) for i in range(20, 70)]
+
+
+def preview_pixel(window, x, y):
+    image = window.editor_page.previewPanel.videoView._image
+    return image.pixelColor(x, y) if image is not None else QColor("black")
+
+
+def test_preview_shows_real_frame(controller, window, media_files, qtbot):
+    controller.new_project()
+    import_files(controller, qtbot, [media_files["image"]])
+    controller.place_media(0)
+    view = window.editor_page.previewPanel.videoView
+    qtbot.waitUntil(lambda: view._image is not None, timeout=30_000)
+
+    assert (view._image.width(), view._image.height()) == (640, 360)
+    qtbot.waitUntil(lambda: preview_pixel(window, 320, 180).red() > 200, timeout=30_000)
+    assert preview_pixel(window, 20, 20).red() < 30
+
+
+def test_preview_follows_settings_and_hidden_track(controller, window, media_files, qtbot):
+    controller.new_project()
+    import_files(controller, qtbot, [media_files["image"]])
+    controller.place_media(0)
+    editor = window.editor_page
+    editor.select_clip(editor.timeline.tracks[0]["clips"][0])
+    qtbot.waitUntil(lambda: preview_pixel(window, 320, 180).red() > 200, timeout=30_000)
+
+    editor.propertiesPanel.imagePage.imageXFieldSpin.setValue(5)
+    editor.propertiesPanel.imagePage.imageYFieldSpin.setValue(5)
+    qtbot.waitUntil(lambda: preview_pixel(window, 320, 180).red() < 30, timeout=30_000)
+    assert preview_pixel(window, 32, 18).red() > 200
+
+    controller.set_track_hidden(0, True)
+    qtbot.waitUntil(lambda: preview_pixel(window, 32, 18).red() < 30, timeout=30_000)
+
+
+def test_preview_uses_project_aspect(controller, window, media_files, qtbot):
+    qtbot.mouseClick(window.home_page.formatVerticalButton, Qt.MouseButton.LeftButton)
+    qtbot.mouseClick(window.home_page.createProjectButton, Qt.MouseButton.LeftButton)
+    import_files(controller, qtbot, [media_files["video"]])
+    controller.place_media(0)
+    view = window.editor_page.previewPanel.videoView
+    qtbot.waitUntil(lambda: view._image is not None, timeout=30_000)
+    assert view.aspect == pytest.approx(9 / 16)
+    assert (view._image.width(), view._image.height()) == (360, 640)
+
+
+def test_selection_box_only_for_visible_image(controller, window, media_files, qtbot):
+    controller.new_project()
+    import_files(controller, qtbot, [media_files["image"]])
+    controller.place_media(0)
+    editor = window.editor_page
+    view = editor.previewPanel.videoView
+    editor.select_clip(editor.timeline.tracks[0]["clips"][0])
+
+    box = view._selection
+    assert box.center().x() == pytest.approx(0.5)
+    assert box.center().y() == pytest.approx(0.5)
+    assert box.width() == pytest.approx(40 / 1920)
+    assert box.height() == pytest.approx(20 / 1080)
+
+    # un clip image dure 5 s
+    editor.seek(10)
+    assert view._selection is None

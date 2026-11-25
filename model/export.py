@@ -1,5 +1,6 @@
 """Export du projet : moviepy assemble les clips, FFmpeg encode."""
 
+import math
 import subprocess
 import tempfile
 from dataclasses import dataclass
@@ -19,7 +20,7 @@ from moviepy import (
 )
 
 from model.effects import animate_text, apply_blur, apply_filters
-from model.project import Clip, Project
+from model.project import Clip, Project, even
 from model.settings import AudioSettings
 
 FORMATS = ("mp4", "mov", "webm", "gif")
@@ -112,16 +113,16 @@ def estimate_size(project: Project, settings: ExportSettings, logger=None) -> in
 def preview_frame(project: Project, time: float, resolution: int = 120) -> np.ndarray:
     sources = []
     try:
-        video = _build_video(project, project.frame_size(resolution), sources)
+        video = build_video(project, project.frame_size(resolution), sources)
         return video.get_frame(min(time, project.duration - 0.01)).astype(np.uint8)
     finally:
-        _close(sources)
+        close_sources(sources)
 
 
 def _render(project: Project, settings: ExportSettings, path: Path, start: float, end: float, logger):
     sources = []  # fichiers ouverts à refermer
     try:
-        video = _build_video(project, project.frame_size(settings.resolution), sources)
+        video = build_video(project, project.frame_size(settings.resolution), sources)
         if (start, end) != (0, project.duration):
             video = video.subclipped(start, end)
         if settings.format == "gif":
@@ -142,7 +143,7 @@ def _render(project: Project, settings: ExportSettings, path: Path, start: float
             logger=logger,
         )
     finally:
-        _close(sources)
+        close_sources(sources)
 
 
 def _write_gif(video, settings: ExportSettings, path: Path, logger):
@@ -167,8 +168,10 @@ def _write_gif(video, settings: ExportSettings, path: Path, logger):
         subprocess.run(command, check=True, capture_output=True)
 
 
-def _build_video(project: Project, size: tuple[int, int], sources: list) -> CompositeVideoClip:
+def build_video(project: Project, size: tuple[int, int], sources: list) -> CompositeVideoClip:
+    """Les fichiers ouverts sont ajoutés à sources : à refermer avec close_sources()."""
     layers = [ColorClip(size, color=(0, 0, 0), duration=project.duration)]
+    reference = project.frame_size()
     sounds = []
     # la première piste est au-dessus, donc on empile à partir de la dernière
     for track in reversed(project.tracks):
@@ -177,7 +180,7 @@ def _build_video(project: Project, size: tuple[int, int], sources: list) -> Comp
                 continue
             # une piste vidéo masquée garde son son
             if clip.kind != "audio" and not track.hidden:
-                layers.append(_picture(clip, size, sources))
+                layers.append(_picture(clip, size, reference, sources))
             if clip.kind in ("audio", "video") and not (track.hidden and track.kind == "audio"):
                 sound = _sound(clip, sources)
                 if sound is not None:
@@ -189,19 +192,28 @@ def _build_video(project: Project, size: tuple[int, int], sources: list) -> Comp
     return video
 
 
-def _picture(clip: Clip, size: tuple[int, int], sources: list):
+def _picture(clip: Clip, size: tuple[int, int], reference: tuple[int, int], sources: list):
     if clip.kind == "text":
         layer = _text(clip, size).with_duration(clip.duration)
         return animate_text(layer, clip.text_style.animation).with_start(clip.start)
 
     if clip.kind == "video":
-        source = VideoFileClip(str(clip.media.path), audio=False)
+        media = clip.media
+        # FFmpeg redimensionne pendant le décodage : 4 fois plus rapide que de réduire du 1080p après coup
+        target = None
+        if media.width and media.height:
+            factor = min(size[0] / media.width, size[1] / media.height)
+            target = (even(media.width * factor), even(media.height * factor))
+        source = VideoFileClip(str(media.path), audio=False, target_resolution=target)
         sources.append(source)
-        layer = _fit(source.subclipped(clip.in_point, clip.in_point + clip.duration), size, upscale=True)
+        layer = source.subclipped(clip.in_point, clip.in_point + clip.duration)
         position = "center"
     else:
         settings = clip.image
-        layer = _fit(ImageClip(str(clip.media.path)), size, upscale=False, scale=settings.scale / 100)
+        layer = ImageClip(str(clip.media.path))
+        factor = image_factor(layer.w, layer.h, clip, size, reference)
+        if factor != 1:
+            layer = layer.resized(factor)
         if settings.rotation:
             if layer.mask is None:
                 # sinon les coins ajoutés par la rotation sont noirs
@@ -261,14 +273,28 @@ def _apply_audio(sound, settings: AudioSettings, max_volume: float, duration: fl
     return sound.with_effects(effects) if effects else sound
 
 
-def _fit(layer, size: tuple[int, int], upscale: bool, scale: float = 1.0):
-    factor = min(size[0] / layer.w, size[1] / layer.h)
-    if not upscale:
-        factor = min(factor, 1)
-    factor *= scale
-    return layer if factor == 1 else layer.resized(factor)
+def image_factor(width: int, height: int, clip: Clip, size: tuple[int, int], reference: tuple[int, int]) -> float:
+    """Calculé dans l'image du projet (reference) puis ramené à size, pour qu'un logo occupe
+    la même place en 360p (aperçu) qu'en 1080p (export)."""
+    fit = min(reference[0] / width, reference[1] / height, 1)
+    return fit * clip.image.scale / 100 * size[0] / reference[0]
 
 
-def _close(sources: list):
+def image_box(clip: Clip, size: tuple[int, int], reference: tuple[int, int]) -> tuple[float, float, float, float]:
+    """(x, y, largeur, hauteur) en pixels d'une image de taille size."""
+    settings = clip.image
+    factor = image_factor(clip.media.width, clip.media.height, clip, size, reference)
+    width, height = clip.media.width * factor, clip.media.height * factor
+    if settings.rotation:
+        # une image tournée prend plus de place : on garde le rectangle qui l'entoure
+        angle = math.radians(settings.rotation)
+        cos, sin = abs(math.cos(angle)), abs(math.sin(angle))
+        width, height = width * cos + height * sin, width * sin + height * cos
+    x = size[0] * settings.x / 100 - width / 2
+    y = size[1] * settings.y / 100 - height / 2
+    return x, y, width, height
+
+
+def close_sources(sources: list):
     for source in sources:
         source.close()

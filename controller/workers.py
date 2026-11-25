@@ -1,11 +1,67 @@
 """Tâches longues lancées dans un thread, pour que la fenêtre ne gèle pas."""
 
+import copy
+import threading
+
 from proglog import ProgressBarLogger
 from PyQt6.QtCore import QThread, pyqtSignal
 
 from model.export import ExportCancelledError, ExportSettings, estimate_size, export
 from model.media import Media
+from model.preview import PreviewRenderer
 from model.project import Project
+
+
+class PreviewWorker(QThread):
+    """Ne garde que la dernière demande : si on avance plus vite qu'il ne calcule, des images sont sautées."""
+
+    frame_ready = pyqtSignal(object)  # image RGB (tableau NumPy) ou None
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.renderer = PreviewRenderer()
+        self._condition = threading.Condition()
+        self._project = None
+        self._time = None
+        self._stopping = False
+
+    def rebuild(self, project: Project):
+        # une copie : le thread principal peut modifier le projet pendant qu'on l'assemble
+        snapshot = copy.deepcopy(project)
+        with self._condition:
+            self._project = snapshot
+            self._condition.notify()
+
+    def request(self, time: float):
+        with self._condition:
+            self._time = time
+            self._condition.notify()
+
+    def stop(self):
+        with self._condition:
+            self._stopping = True
+            self._condition.notify()
+        self.wait()
+
+    def run(self):
+        while True:
+            with self._condition:
+                while not self._stopping and self._project is None and self._time is None:
+                    self._condition.wait()
+                if self._stopping:
+                    break
+                project, self._project = self._project, None
+                time, self._time = self._time, None
+            try:
+                if project is not None:
+                    self.renderer.rebuild(project)
+                if time is not None:
+                    self.frame_ready.emit(self.renderer.frame(time))
+            except Exception:
+                # fichier déplacé, vidéo abîmée… : sans ça le thread meurt et l'aperçu ne bouge plus
+                self.renderer.close()
+                self.frame_ready.emit(None)
+        self.renderer.close()
 
 
 class ImportWorker(QThread):
