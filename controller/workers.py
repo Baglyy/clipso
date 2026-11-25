@@ -8,8 +8,13 @@ from PyQt6.QtCore import QThread, pyqtSignal
 
 from model.export import ExportCancelledError, ExportSettings, estimate_size, export
 from model.media import Media
-from model.preview import PreviewRenderer
+from model.preview import CHANNELS, SAMPLE_RATE, AudioRenderer, PreviewRenderer
 from model.project import Project
+
+BYTES_PER_SAMPLE = 2 * CHANNELS
+AUDIO_CHUNK = SAMPLE_RATE // 20
+# avance prise sur la lecture : assez pour ne pas couper, pas trop pour entendre vite un réglage modifié
+AUDIO_AHEAD = SAMPLE_RATE // 4 * BYTES_PER_SAMPLE
 
 
 class PreviewWorker(QThread):
@@ -61,6 +66,78 @@ class PreviewWorker(QThread):
                 # fichier déplacé, vidéo abîmée… : sans ça le thread meurt et l'aperçu ne bouge plus
                 self.renderer.close()
                 self.frame_ready.emit(None)
+        self.renderer.close()
+
+
+class AudioWorker(QThread):
+    """Prépare le son un peu en avance sur la lecture. AudioPlayer le récupère avec take()."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.renderer = AudioRenderer()
+        self._condition = threading.Condition()
+        self._project = None
+        self._playing = False
+        self._stopping = False
+        self._next = 0  # prochain échantillon à calculer
+        self._generation = 0  # change à chaque saut, pour jeter un morceau calculé avant
+        self._buffer = bytearray()
+
+    def rebuild(self, project: Project):
+        snapshot = copy.deepcopy(project)
+        with self._condition:
+            self._project = snapshot
+            self._condition.notify()
+
+    def play(self, seconds: float):
+        with self._condition:
+            self._generation += 1
+            self._next = round(seconds * SAMPLE_RATE)
+            self._buffer.clear()
+            self._playing = True
+            self._condition.notify()
+
+    def pause(self):
+        with self._condition:
+            self._generation += 1
+            self._playing = False
+            self._buffer.clear()
+
+    def take(self, size: int) -> bytes:
+        with self._condition:
+            size = min(size, len(self._buffer))
+            size -= size % BYTES_PER_SAMPLE
+            data = bytes(self._buffer[:size])
+            del self._buffer[:size]
+            self._condition.notify()
+        return data
+
+    def stop(self):
+        with self._condition:
+            self._stopping = True
+            self._condition.notify()
+        self.wait()
+
+    def _has_work(self) -> bool:
+        return self._stopping or self._project is not None or (self._playing and len(self._buffer) < AUDIO_AHEAD)
+
+    def run(self):
+        while True:
+            with self._condition:
+                self._condition.wait_for(self._has_work)
+                if self._stopping:
+                    break
+                project, self._project = self._project, None
+                playing, first, generation = self._playing, self._next, self._generation
+            if project is not None:
+                self.renderer.rebuild(project)
+            if not playing:
+                continue
+            data = self.renderer.samples(first, AUDIO_CHUNK).tobytes()
+            with self._condition:
+                if generation == self._generation:
+                    self._buffer += data
+                    self._next += AUDIO_CHUNK
         self.renderer.close()
 
 
