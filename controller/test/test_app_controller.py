@@ -319,8 +319,9 @@ def test_preview_follows_settings_and_hidden_track(controller, window, media_fil
 
     editor.propertiesPanel.imagePage.imageXFieldSpin.setValue(5)
     editor.propertiesPanel.imagePage.imageYFieldSpin.setValue(5)
-    qtbot.waitUntil(lambda: preview_pixel(window, 320, 180).red() < 30, timeout=30_000)
-    assert preview_pixel(window, 32, 18).red() > 200
+    # le centre devient noir dès le changement de X : on attend que Y soit pris en compte aussi
+    qtbot.waitUntil(lambda: preview_pixel(window, 32, 18).red() > 200, timeout=30_000)
+    assert preview_pixel(window, 320, 180).red() < 30
 
     controller.set_track_hidden(0, True)
     qtbot.waitUntil(lambda: preview_pixel(window, 32, 18).red() < 30, timeout=30_000)
