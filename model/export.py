@@ -133,6 +133,8 @@ def _render(project: Project, settings: ExportSettings, path: Path, start: float
         if codec == "libvpx-vp9":
             # VP9 n'utilise le CRF que si on ne lui impose pas de débit
             params += ["-b:v", "0"]
+            # moviepy ne choisit pas le format de pixels pour VP9 : FFmpeg prendrait gbrap, qu'il refuse ensuite
+            params += ["-pix_fmt", "yuv420p"]
         video.write_videofile(
             str(path),
             fps=settings.fps,
