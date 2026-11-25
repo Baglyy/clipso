@@ -170,23 +170,18 @@ def _write_gif(video, settings: ExportSettings, path: Path, logger):
         subprocess.run(command, check=True, capture_output=True)
 
 
-def build_video(project: Project, size: tuple[int, int], sources: list) -> CompositeVideoClip:
+def build_video(project: Project, size: tuple[int, int], sources: list, with_audio: bool = True) -> CompositeVideoClip:
     """Les fichiers ouverts sont ajoutés à sources : à refermer avec close_sources()."""
     layers = [ColorClip(size, color=(0, 0, 0), duration=project.duration)]
     reference = project.frame_size()
-    sounds = []
     # la première piste est au-dessus, donc on empile à partir de la dernière
     for track in reversed(project.tracks):
         for clip in track.clips:
-            # une piste vidéo masquée garde son son
             if clip.kind != "audio" and not track.hidden:
                 layers.append(_picture(clip, size, reference, sources))
-            if clip.kind in ("audio", "video") and not (track.hidden and track.kind == "audio"):
-                sound = _sound(clip, sources)
-                if sound is not None:
-                    sounds.append(sound)
 
     video = CompositeVideoClip(layers, size=size).with_duration(project.duration)
+    sounds = [build_sound(clip, sources) for clip in audible_clips(project)] if with_audio else []
     if sounds:
         video = video.with_audio(CompositeAudioClip(sounds).with_duration(project.duration))
     return video
@@ -250,9 +245,18 @@ def _text(clip: Clip, size: tuple[int, int]):
     return layer.with_position((x, size[1] * TEXT_CENTER_Y - layer.h / 2))
 
 
-def _sound(clip: Clip, sources: list):
-    if clip.audio.muted or not clip.media.has_audio:
-        return None
+def audible_clips(project: Project) -> list[Clip]:
+    return [
+        clip
+        for track in project.tracks
+        # masquer une piste audio la coupe, mais une piste vidéo masquée garde son son
+        if not (track.hidden and track.kind == "audio")
+        for clip in track.clips
+        if clip.media and clip.media.has_audio and not clip.audio.muted
+    ]
+
+
+def build_sound(clip: Clip, sources: list):
     source = AudioFileClip(str(clip.media.path))
     sources.append(source)
     sound = source.subclipped(clip.in_point, clip.in_point + clip.duration)
