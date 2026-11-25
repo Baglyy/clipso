@@ -3,12 +3,12 @@
 from dataclasses import asdict
 from pathlib import Path
 
-from PyQt6.QtCore import QStandardPaths, Qt, QTimer
+from PyQt6.QtCore import QRectF, QStandardPaths, Qt, QTimer
 from PyQt6.QtGui import QImage
 from PyQt6.QtWidgets import QFileDialog, QMessageBox, QProgressDialog
 
-from controller.workers import EstimateWorker, ExportWorker, ImportWorker
-from model.export import ExportSettings, preview_frame
+from controller.workers import EstimateWorker, ExportWorker, ImportWorker, PreviewWorker
+from model.export import ExportSettings, image_box, preview_frame
 from model.media import AUDIO_EXTENSIONS, IMAGE_EXTENSIONS, VIDEO_EXTENSIONS
 from model.project import Project
 from model.settings import AudioSettings, Blur, Filters, ImageSettings, TextStyle
@@ -35,6 +35,9 @@ class AppController:
         self.import_worker = None
         self.export_worker = None
         self.estimate_worker = None
+        self.preview_worker = PreviewWorker()
+        self.preview_worker.frame_ready.connect(self.show_preview_frame)
+        self.preview_worker.start()
 
         home = window.home_page
         self.aspect_buttons = {
@@ -54,6 +57,10 @@ class AppController:
         self.editor.timelinePanel.track_locked_toggled.connect(self.set_track_locked)
         self.editor.propertiesPanel.settings_changed.connect(self.change_settings)
         self.editor.export_requested.connect(self.show_export)
+        self.editor.position_shown.connect(self.request_preview)
+
+    def close(self):
+        self.preview_worker.stop()
 
     # Projet
 
@@ -115,6 +122,8 @@ class AppController:
                 {"name": track.name, "kind": track.kind, "hidden": track.hidden, "locked": track.locked, "clips": clips}
             )
 
+        # avant load_project, qui demande l'image courante : sinon elle serait calculée avec l'ancien projet
+        self.preview_worker.rebuild(project)
         self.editor.load_project(project.name, media_list, tracks, project.duration, self.editor.timeline.position)
         self.editor.previewPanel.set_format(project.aspect, project.resolution, project.fps)
         if selected_view_clip:
@@ -180,6 +189,7 @@ class AppController:
 
     def set_track_hidden(self, index: int, hidden: bool):
         self.project.tracks[index].hidden = hidden
+        self.update_preview()
 
     def set_track_locked(self, index: int, locked: bool):
         self.project.tracks[index].locked = locked
@@ -208,6 +218,7 @@ class AppController:
             media = clip.media
             info = f"{media.path.suffix[1:].upper()} · {media.width} × {media.height}"
             panel.imagePage.set_image(media.name, info, to_qimage(media.thumbnail))
+        self.update_selection_box()
 
     def change_settings(self, tab: str, values: dict):
         clip = self.selected_clip
@@ -220,9 +231,34 @@ class AppController:
             self.selected_view_clip["text"] = clip.text
             self.selected_view_clip["name"] = clip.name
             self.editor.timeline.update()
-            self.editor.seek(self.editor.timeline.position)
         else:
             setattr(clip, tab, SETTINGS_CLASSES[tab](**values))
+        self.update_preview()
+
+    # Aperçu
+
+    def update_preview(self):
+        self.preview_worker.rebuild(self.project)
+        self.request_preview(self.editor.timeline.position)
+
+    def request_preview(self, seconds: float):
+        self.preview_worker.request(seconds)
+        self.update_selection_box()
+
+    def show_preview_frame(self, frame):
+        self.editor.previewPanel.show_image(to_qimage(frame))
+
+    def update_selection_box(self):
+        clip = self.selected_clip
+        seconds = self.editor.timeline.position
+        box = None
+        if clip is not None and clip.kind == "image" and clip.start <= seconds < clip.end:
+            track = next(track for track in self.project.tracks if any(c is clip for c in track.clips))
+            if not track.hidden:
+                width, height = size = self.project.frame_size()
+                x, y, box_width, box_height = image_box(clip, size, size)
+                box = QRectF(x / width, y / height, box_width / width, box_height / height)
+        self.editor.previewPanel.videoView.set_selection(box)
 
     # Export
 

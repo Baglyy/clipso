@@ -81,7 +81,7 @@ class Project:
         short_side = resolution or self.resolution
         width, height = ASPECTS[self.aspect]
         scale = short_side / min(width, height)
-        return _even(width * scale), _even(height * scale)
+        return even(width * scale), even(height * scale)
 
     def is_used(self, media: Media) -> bool:
         return any(clip.media is media for track in self.tracks for clip in track.clips)
@@ -109,5 +109,5 @@ class Project:
         return clip
 
 
-def _even(value: float) -> int:
+def even(value: float) -> int:
     return int(round(value / 2)) * 2

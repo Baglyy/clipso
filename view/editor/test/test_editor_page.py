@@ -8,6 +8,7 @@ from view.editor.preview.preview_panel import FPS
 # Fixtures
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture
 def project_data():
     """Données d'un projet de test complet."""
@@ -76,6 +77,7 @@ def loaded_page(page, project_data):
 # Tests : Initialisation & Propriétés
 # ---------------------------------------------------------------------------
 
+
 def test_initial_state(page):
     """Vérifie l'état initial des splitters, menus et timers de la page."""
     assert page.testAttribute(Qt.WidgetAttribute.WA_StyledBackground)
@@ -92,6 +94,7 @@ def test_initial_state(page):
 # Tests : Chargement de Projet (load_project)
 # ---------------------------------------------------------------------------
 
+
 def test_load_project(loaded_page, project_data):
     """Vérifie l'initialisation du titre, de la durée, des panneaux et de la position."""
     assert loaded_page.duration == project_data["duration"]
@@ -104,6 +107,7 @@ def test_load_project(loaded_page, project_data):
 # ---------------------------------------------------------------------------
 # Tests : Signaux de la Barre Supérieure et Menus
 # ---------------------------------------------------------------------------
+
 
 def test_logo_button_emits_home_requested(page, qtbot):
     """Vérifie que le clic sur le logo émet home_requested."""
@@ -147,6 +151,7 @@ def test_view_menu_zoom_actions(page):
 # Tests : Navigation Temporelle (seek, jump, step)
 # ---------------------------------------------------------------------------
 
+
 def test_seek_updates_timeline_and_preview(loaded_page):
     """Vérifie que seek met à jour la position de la timeline."""
     loaded_page.seek(4.5)
@@ -174,6 +179,7 @@ def test_preview_jump_requested(loaded_page):
 # ---------------------------------------------------------------------------
 # Tests : Lecture et Timer (Playback)
 # ---------------------------------------------------------------------------
+
 
 def test_playback_start_and_stop(loaded_page):
     """Vérifie le démarrage et l'arrêt du timer de lecture."""
@@ -222,6 +228,7 @@ def test_playback_stops_automatically_at_duration(loaded_page):
 # Tests : Sélection de Clips
 # ---------------------------------------------------------------------------
 
+
 def test_select_clip(loaded_page, project_data):
     """Vérifie la sélection d'un clip dans la timeline."""
     target_clip = project_data["tracks"][0]["clips"][0]
@@ -233,6 +240,7 @@ def test_select_clip(loaded_page, project_data):
 # ---------------------------------------------------------------------------
 # Tests : Rendu Graphique
 # ---------------------------------------------------------------------------
+
 
 def test_paint_event_does_not_crash(loaded_page, qtbot):
     """Vérifie que la page s'affiche et planifie son rafraîchissement sans crash."""

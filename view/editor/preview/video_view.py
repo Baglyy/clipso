@@ -1,14 +1,14 @@
-"""Zone d'aperçu vidéo : affiche l'image courante et les calques (texte, logo)."""
+"""Zone d'aperçu vidéo : affiche l'image du montage calculée par le controller."""
 
 from PyQt6.QtCore import QRectF, Qt
-from PyQt6.QtGui import QColor, QFont, QPainter, QPen
+from PyQt6.QtGui import QColor, QImage, QPainter, QPainterPath, QPen
 from PyQt6.QtWidgets import QSizePolicy, QWidget
 
-from view.painting import draw_stripes
-from view.theme import GREEN, INK, WHITE
+from view.theme import GREEN, INK
 
-# TODO: format 16:9 en dur, à lire depuis le projet (9:16, 1:1…)
-ASPECT = 16 / 9
+DEFAULT_ASPECT = 16 / 9
+CORNER_RADIUS = 10
+SELECTION_MARGIN = 4
 
 
 class VideoView(QWidget):
@@ -16,74 +16,58 @@ class VideoView(QWidget):
         super().__init__(parent)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.setMinimumSize(320, 180)
-        self._color = ""
-        self._source = ""
-        self._text = ""
-        self._logo = False
-        self._logo_selected = False
+        self.aspect = DEFAULT_ASPECT
+        self._image: QImage | None = None
+        # en fractions de l'image (0 à 1)
+        self._selection: QRectF | None = None
 
-    def show_frame(self, color: str, source: str, text: str = "", logo: bool = False, logo_selected: bool = False):
-        self._color, self._source, self._text = color, source, text
-        self._logo, self._logo_selected = logo, logo_selected
+    def set_aspect(self, aspect: float):
+        self.aspect = aspect
+        self.update()
+
+    def show_image(self, image: QImage | None):
+        self._image = image
+        self.update()
+
+    def set_selection(self, box: QRectF | None):
+        self._selection = box
         self.update()
 
     def frame_rect(self) -> QRectF:
-        """Rectangle 16:9 le plus grand possible, centré."""
+        """Rectangle au format du projet le plus grand possible, centré."""
         w, h = self.width(), self.height()
-        if w / h > ASPECT:
-            fw, fh = h * ASPECT, h
+        if w / h > self.aspect:
+            fw, fh = h * self.aspect, h
         else:
-            fw, fh = w, w / ASPECT
+            fw, fh = w, w / self.aspect
         return QRectF((w - fw) / 2, (h - fh) / 2, fw, fh)
 
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
         frame = self.frame_rect()
 
-        # TODO: rayures colorées à la place de la vraie image vidéo décodée
-        if self._color:
-            draw_stripes(painter, frame, QColor(self._color).lighter(108), 10)
-        else:
+        if self._image is None:
             painter.setPen(Qt.PenStyle.NoPen)
             painter.setBrush(QColor(INK))
-            painter.drawRoundedRect(frame, 10, 10)
+            painter.drawRoundedRect(frame, CORNER_RADIUS, CORNER_RADIUS)
+        else:
+            path = QPainterPath()
+            path.addRoundedRect(frame, CORNER_RADIUS, CORNER_RADIUS)
+            painter.save()
+            painter.setClipPath(path)
+            painter.drawImage(frame, self._image)
+            painter.restore()
 
-        if self._source:
-            font = QFont("JetBrains Mono", 8)
-            font.setWeight(QFont.Weight.Medium)
-            painter.setFont(font)
-            label = f"aperçu vidéo · {self._source}"
-            text_width = painter.fontMetrics().horizontalAdvance(label)
-            chip = QRectF(frame.left() + 10, frame.top() + 9, text_width + 16, 20)
-            painter.setPen(Qt.PenStyle.NoPen)
-            painter.setBrush(QColor(43, 42, 40, 150))
-            painter.drawRoundedRect(chip, 5, 5)
-            painter.setPen(QColor(WHITE))
-            painter.drawText(chip, Qt.AlignmentFlag.AlignCenter, label)
-
-        # TODO: logo simulé par un cercle « logo_club » à position fixe, à remplacer par l'image réelle et sa position
-        if self._logo:
-            diameter = frame.height() * 0.29
-            center_x = frame.left() + frame.width() * 0.84
-            center_y = frame.top() + frame.height() * 0.18
-            circle = QRectF(center_x - diameter / 2, center_y - diameter / 2, diameter, diameter)
-            if self._logo_selected:
-                pen = QPen(QColor(GREEN), 1.5, Qt.PenStyle.DashLine)
-                painter.setPen(pen)
-                painter.setBrush(Qt.BrushStyle.NoBrush)
-                painter.drawEllipse(circle.adjusted(-6, -6, 6, 6))
-            painter.setPen(QPen(QColor(INK), 3))
-            painter.setBrush(QColor("#F4F2EE"))
-            painter.drawEllipse(circle)
-            painter.setPen(QColor(INK))
-            painter.setFont(QFont("JetBrains Mono", 7))
-            painter.drawText(circle, Qt.AlignmentFlag.AlignCenter, "logo_club")
-
-        if self._text:
-            font = QFont("Nunito", max(12, int(frame.height() * 0.085)))
-            font.setWeight(QFont.Weight.Black)
-            painter.setFont(font)
-            painter.setPen(QColor(WHITE))
-            area = QRectF(frame.left(), frame.top() + frame.height() * 0.66, frame.width(), frame.height() * 0.2)
-            painter.drawText(area, Qt.AlignmentFlag.AlignCenter, self._text)
+        if self._selection is not None:
+            box = QRectF(
+                frame.left() + self._selection.x() * frame.width(),
+                frame.top() + self._selection.y() * frame.height(),
+                self._selection.width() * frame.width(),
+                self._selection.height() * frame.height(),
+            )
+            margin = SELECTION_MARGIN
+            painter.setPen(QPen(QColor(GREEN), 1.5, Qt.PenStyle.DashLine))
+            painter.setBrush(Qt.BrushStyle.NoBrush)
+            painter.drawRect(box.adjusted(-margin, -margin, margin, margin))
